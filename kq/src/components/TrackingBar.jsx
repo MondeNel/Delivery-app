@@ -1,33 +1,106 @@
+import { useState, useEffect } from 'react'
 import { useOrder } from '../context/OrderContext'
+import { FiCheckCircle, FiClock, FiTruck } from 'react-icons/fi'
+
+const STAGES = [
+  { key: 'received', label: 'Order Received', icon: FiCheckCircle },
+  { key: 'preparing', label: 'Preparing', icon: FiClock },
+  { key: 'out', label: 'Out for Delivery', icon: FiTruck },
+]
 
 export default function TrackingBar() {
   const { order } = useOrder()
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    if (!order || order.status === 'out') return
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(timer)
+  }, [order])
+
   if (!order) return null
 
-  const steps = [
-    { label: 'Received', done: order.status === 'received' || order.status === 'preparing' || order.status === 'out' },
-    { label: 'Preparing', done: order.status === 'preparing' || order.status === 'out' },
-    { label: 'Out for delivery', done: order.status === 'out' }
-  ]
+  const elapsed = now - order.time
+  const currentStage = order.status
+
+  // Determine expected arrival time (simulated)
+  const expectedArrival = currentStage === 'out' ? '~10 min' : '~15 min'
+
+  // Countdown for the next stage
+  const getCountdown = (stageKey) => {
+    if (currentStage === stageKey || currentStage === 'out') return null
+    const durations = { received: 3000, preparing: 7000 }
+    const remaining = durations[currentStage] ? durations[currentStage] - elapsed : 0
+    if (remaining <= 0) return null
+    const sec = Math.ceil(remaining / 1000)
+    return sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}m ${sec % 60}s`
+  }
 
   return (
     <div className="mx-4 mt-3 mb-4 bg-white border border-border-light rounded-lg p-4">
-      <div className="text-xs text-text-tertiary font-medium uppercase tracking-wide mb-3">Live order tracking — #{order.id}</div>
-      <div className="flex items-center">
-        {steps.map((step, i) => (
-          <div key={i} className="flex-1 flex flex-col items-center">
-            <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs mb-1
-              ${step.done ? 'bg-gold border-gold text-white' : 'bg-white border-border-light text-text-tertiary'}`}>
-              {step.done ? '✓' : i+1}
-            </div>
-            {i < steps.length - 1 && (
-              <div className={`h-0.5 w-full mb-4 ${step.done ? 'bg-gold' : 'bg-border-light'}`}></div>
-            )}
-            <div className={`text-[10px] ${step.done ? 'text-gold font-medium' : 'text-text-tertiary'}`}>
-              {step.label}
-            </div>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-3">
+        <div>
+          <div className="text-xs text-text-tertiary font-medium uppercase tracking-wide">
+            Live order tracking — #{order.id}
           </div>
-        ))}
+          <div className="text-[10px] text-text-tertiary">
+            Expected arrival: {expectedArrival}
+          </div>
+        </div>
+        <span className="text-[10px] text-gold font-medium bg-gold-light px-2 py-0.5 rounded-full">
+          {currentStage === 'out' ? 'On the way!' : 'Preparing'}
+        </span>
+      </div>
+
+      {/* Vertical timeline */}
+      <div className="space-y-0">
+        {STAGES.map((stage, i) => {
+          const Icon = stage.icon
+          const isCompleted = STAGES.findIndex(s => s.key === currentStage) >= i
+          const isCurrent = STAGES.findIndex(s => s.key === currentStage) === i
+          const countdown = isCurrent ? getCountdown(stage.key) : null
+
+          return (
+            <div key={stage.key} className="flex gap-3">
+              {/* Dot & line */}
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    isCompleted
+                      ? 'bg-gold border-gold text-white'
+                      : 'bg-white border-border-light text-text-tertiary'
+                  }`}
+                >
+                  {isCompleted ? <Icon size={14} /> : <span className="text-xs">{i + 1}</span>}
+                </div>
+                {i < STAGES.length - 1 && (
+                  <div
+                    className={`w-0.5 flex-1 min-h-[24px] my-1 ${
+                      isCompleted && i < STAGES.findIndex(s => s.key === currentStage)
+                        ? 'bg-gold'
+                        : 'bg-border-light'
+                    }`}
+                  />
+                )}
+              </div>
+
+              {/* Label & countdown */}
+              <div className="flex flex-col justify-center pb-4">
+                <span
+                  className={`text-xs font-medium ${
+                    isCompleted ? 'text-gold' : 'text-text-tertiary'
+                  }`}
+                >
+                  {stage.label}
+                </span>
+                {countdown && (
+                  <span className="text-[10px] text-text-tertiary">in {countdown}</span>
+                )}
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
