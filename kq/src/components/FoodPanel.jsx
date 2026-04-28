@@ -3,42 +3,35 @@ import { foods } from '../data/products'
 import CategoryPills from './CategoryPills'
 import ItemCard from './ItemCard'
 
-const CAT_MAP = {
-  'plate combos': 'combo',
-  'babalas grill': 'grill',
-  'single meals': 'single',
-  'sides': 'side',
-}
-
 export default function FoodPanel({ search, onCardClick }) {
   const [cat, setCat] = useState('All')
-  const categories = ['All', 'Plate Combos', 'Babalas Grill', 'Single Meals', 'Sides']
+  const categories = ['All', 'Combo', 'Grill', 'Single', 'Side']
 
   const filtered = useMemo(() => foods.filter(f => {
-    const mappedCat = CAT_MAP[cat.toLowerCase()] || cat.toLowerCase()
-    const matchCat = cat === 'All' || f.cat === mappedCat
+    const matchCat = cat === 'All' || f.cat.toLowerCase() === cat.toLowerCase()
     const matchSearch = !search || f.name.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
   }), [cat, search])
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-cream-300 card-lift">
-      <div className="flex items-baseline justify-between mb-3 pb-3 border-b border-cream-200">
-        <h2 className="font-serif text-base font-bold text-ink">Food</h2>
-        <span className="text-[10px] text-ink-ghost uppercase tracking-widest">{filtered.length} items</span>
+    <div className="bg-white rounded-[2rem] p-5 border border-cream-200 shadow-sm">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-ember rounded-full animate-pulse" />
+          <h2 className="font-serif text-lg font-bold text-ink">Food Menu</h2>
+        </div>
+        <span className="text-[10px] font-black text-ink-ghost bg-cream-100 px-2 py-1 rounded-lg uppercase">
+          {filtered.length} Items
+        </span>
       </div>
+
       <CategoryPills categories={categories} active={cat} onChange={setCat} />
-      {filtered.length > 0 ? (
-        <div className="flex flex-wrap gap-3 mt-3">
-          {filtered.map(f => (
-            <ItemCard key={f.id} item={f} onCardClick={onCardClick} />
-          ))}
-        </div>
-      ) : (
-        <div className="py-8 text-center">
-          <p className="text-sm text-ink-ghost">No items found</p>
-        </div>
-      )}
+
+      <div className="grid grid-cols-2 xs:grid-cols-3 gap-3 mt-5">
+        {filtered.map((f, i) => (
+          <ItemCard key={f.id} item={f} onCardClick={onCardClick} />
+        ))}
+      </div>
     </div>
   )
 }

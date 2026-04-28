@@ -10,6 +10,7 @@ const getInitial = () => {
 }
 
 export function ProfileProvider({ children }) {
+  // Lazy initialization for performance
   const [profile, setProfile] = useState(getInitial)
 
   useEffect(() => {

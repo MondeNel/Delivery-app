@@ -1,79 +1,107 @@
 import { useCart } from '../context/CartContext'
+import { FiArrowLeft, FiTrash2, FiPlus, FiMinus } from 'react-icons/fi'
 
 export default function CartDrawer({ open, onClose, onCheckout }) {
   const { items, dispatch, subtotal } = useCart()
-
-  const getThumbnail = (item) => {
-    if (item.img) return item.img
-    if (item.cat && ['combo','grill','single','side'].includes(item.cat)) return '/kq-logo.png'
-    return null
-  }
-
   const canCheckout = subtotal >= 100
 
   return (
     <>
-      <div className={`fixed inset-0 bg-black/40 z-40 transition-opacity ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={onClose} />
-      <div className={`fixed top-0 right-0 h-full w-[90vw] max-w-sm bg-cream shadow-2xl z-50 transform transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* Backdrop */}
+      <div 
+        className={`fixed inset-0 bg-ink/40 backdrop-blur-sm z-[60] transition-opacity duration-500 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} 
+        onClick={onClose} 
+      />
+      
+      {/* Drawer */}
+      <div className={`fixed top-0 right-0 h-full w-full max-w-[400px] bg-[#FAF9F6] shadow-2xl z-[70] transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${open ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-cream-200">
-            <button onClick={onClose} className="text-ink-muted p-1">
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M19 12H5m7-7-7 7 7 7"/>
-              </svg>
+          {/* Header */}
+          <div className="bg-white px-6 py-6 flex items-center justify-between border-b border-cream-200">
+            <button onClick={onClose} className="w-10 h-10 rounded-full bg-cream-100 flex items-center justify-center text-ink active:scale-90 transition-all">
+              <FiArrowLeft size={20} />
             </button>
-            <h2 className="font-serif text-lg text-ink">Your Order</h2>
-            <div className="w-6" />
+            <h2 className="font-serif text-xl font-bold text-ink">My Bucket</h2>
+            <div className="w-10" />
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4">
+          {/* Items List */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {items.length === 0 ? (
-              <p className="text-sm text-ink-muted text-center py-8">Your cart is empty</p>
+              <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40">
+                <div className="w-20 h-20 bg-cream-200 rounded-full flex items-center justify-center text-3xl">🛒</div>
+                <p className="text-sm font-bold text-ink-ghost uppercase tracking-widest">Your bucket is empty</p>
+              </div>
             ) : (
-              items.map(item => {
-                const imgSrc = getThumbnail(item)
-                return (
-                  <div key={item.id} className="flex items-center gap-3 bg-white border border-cream-300 rounded-lg p-3 mb-2">
-                    <div className="w-10 h-10 rounded-md bg-cream-200 flex-shrink-0 overflow-hidden">
-                      {imgSrc ? (
-                        <img src={imgSrc} alt={item.name} className="w-full h-full object-cover" onError={e => { e.target.style.display = 'none' }} />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-ink-muted">{item.name.charAt(0)}</div>
-                      )}
-                    </div>
-                    <span className="text-sm text-ink flex-1">{item.name} <span className="text-ink-muted text-xs">x{item.qty}</span></span>
-                    <div className="flex items-center gap-1.5">
-                      <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })}
-                        className="bg-cream-200 border border-cream-300 w-6 h-6 rounded text-xs btn-press">−</button>
-                      <span className="text-xs font-medium text-gold w-4 text-center">{item.qty}</span>
-                      <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })}
-                        className="bg-cream-200 border border-cream-300 w-6 h-6 rounded text-xs btn-press">+</button>
-                    </div>
-                    <span className="text-sm font-medium text-gold ml-2">R{item.price * item.qty}</span>
+              items.map(item => (
+                <div key={item.id} className="flex items-center gap-4 bg-white border border-cream-200 rounded-2xl p-4 shadow-sm animate-in fade-in slide-in-from-right-4">
+                  <div className="w-14 h-14 rounded-xl bg-cream-100 flex-shrink-0 overflow-hidden flex items-center justify-center font-bold text-gold/30">
+                    {item.img ? <img src={item.img} className="w-full h-full object-cover" /> : 'K&Q'}
                   </div>
-                )
-              })
+                  
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-ink truncate">{item.name}</p>
+                    <p className="text-xs font-black text-gold mt-1">R{item.price * item.qty}</p>
+                  </div>
+
+                  <div className="flex items-center bg-cream-50 rounded-lg border border-cream-200 p-1">
+                    <button 
+                      onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })}
+                      className="w-7 h-7 flex items-center justify-center text-ink-ghost hover:text-ink"
+                    >
+                      {item.qty === 1 ? <FiTrash2 size={14} className="text-ember" /> : <FiMinus size={14} />}
+                    </button>
+                    <span className="text-xs font-black text-ink w-6 text-center">{item.qty}</span>
+                    <button 
+                      onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })}
+                      className="w-7 h-7 flex items-center justify-center text-gold"
+                    >
+                      <FiPlus size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))
             )}
           </div>
 
-          <div className="bg-white m-3 rounded-lg p-4 border border-cream-200">
-            <div className="bg-gold-light border border-gold-border rounded-md p-2 text-center text-xs text-gold-dark mb-3">
-              Minimum order R100 · Delivery fee R20
+          {/* Checkout Section */}
+          <div className="bg-white p-6 border-t border-cream-200 rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.04)]">
+            <div className="space-y-3 mb-6">
+              {!canCheckout && (
+                <div className="bg-ember/5 border border-ember/10 rounded-xl p-3 text-center">
+                  <p className="text-[10px] font-black text-ember uppercase tracking-wider">
+                    Add R{100 - subtotal} more for delivery
+                  </p>
+                </div>
+              )}
+              <div className="flex justify-between text-xs font-bold text-ink-ghost uppercase tracking-tighter">
+                <span>Subtotal</span>
+                <span>R{subtotal}</span>
+              </div>
+              <div className="flex justify-between text-xs font-bold text-ink-ghost uppercase tracking-tighter">
+                <span>Delivery Fee</span>
+                <span>R20</span>
+              </div>
+              <div className="flex justify-between items-end pt-3 border-t border-dashed border-cream-200">
+                <span className="text-sm font-black text-ink uppercase">Total Due</span>
+                <span className="text-2xl font-black text-gold leading-none">R{subtotal + 20}</span>
+              </div>
             </div>
-            <div className="flex justify-between text-sm text-ink-muted mb-1"><span>Subtotal</span><span>R{subtotal}</span></div>
-            <div className="flex justify-between text-sm text-ink-muted mb-1"><span>Delivery</span><span>R20</span></div>
-            <div className="flex justify-between text-base font-medium text-ink border-t border-cream-200 pt-2 mt-2"><span>Total</span><span className="text-gold">R{subtotal + 20}</span></div>
 
             <button
               onClick={onCheckout}
               disabled={!canCheckout}
-              className={`w-full mt-4 py-3.5 rounded-lg font-semibold text-sm transition-all ${
-                canCheckout ? 'bg-gold text-white hover:bg-gold-dark' : 'bg-cream-200 text-ink-muted cursor-not-allowed border border-cream-300'
+              className={`w-full py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all duration-300 ${
+                canCheckout 
+                  ? 'bg-ink text-white shadow-xl shadow-ink/20 active:scale-[0.98]' 
+                  : 'bg-cream-200 text-ink-ghost cursor-not-allowed'
               }`}
             >
-              {canCheckout ? 'Proceed to Checkout' : `Add R${100 - subtotal} more to checkout`}
+              {canCheckout ? 'Checkout Now' : 'Below Minimum'}
             </button>
-            <p className="text-center text-xs text-ink-muted mt-2">Pay on delivery · Cash accepted</p>
+            <p className="text-center text-[10px] font-black text-ink-ghost uppercase tracking-widest mt-4">
+               Pay on Arrival · Cash or Card
+            </p>
           </div>
         </div>
       </div>

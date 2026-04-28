@@ -10,6 +10,7 @@ const getInitial = () => {
 function ordersReducer(state, action) {
   switch (action.type) {
     case 'ADD_ORDER':
+      // We keep the most recent order at the end of the array
       return [...state, action.payload]
     case 'UPDATE_STATUS':
       return state.map(order =>
@@ -17,6 +18,8 @@ function ordersReducer(state, action) {
           ? { ...order, status: action.payload.status }
           : order
       )
+    case 'CLEAR_HISTORY': // Added for admin/testing purposes
+      return []
     default:
       return state
   }
@@ -34,8 +37,10 @@ export function PlacedOrdersProvider({ children }) {
   const updateOrderStatus = (id, status) =>
     dispatch({ type: 'UPDATE_STATUS', payload: { id, status } })
 
+  const clearOrders = () => dispatch({ type: 'CLEAR_HISTORY' })
+
   return (
-    <PlacedOrdersContext.Provider value={{ orders, addOrder, updateOrderStatus }}>
+    <PlacedOrdersContext.Provider value={{ orders, addOrder, updateOrderStatus, clearOrders }}>
       {children}
     </PlacedOrdersContext.Provider>
   )

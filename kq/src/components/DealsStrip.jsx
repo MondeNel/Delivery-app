@@ -34,34 +34,37 @@ const deals = [
 ]
 
 function DealCard({ deal }) {
-  const discount = Math.round((1 - parseInt(deal.now.slice(1)) / parseInt(deal.was.slice(1))) * 100)
+  // Safer parsing: removes non-numeric characters before calculating
+  const parsePrice = (p) => parseInt(p.toString().replace(/\D/g, ''))
+  const discount = Math.round((1 - parsePrice(deal.now) / parsePrice(deal.was)) * 100)
 
   return (
-    <div className="card-lift min-w-[158px] bg-white border border-cream-300 rounded-2xl overflow-hidden flex-shrink-0" style={{ boxShadow: '0 1px 4px rgba(26,22,18,0.06)' }}>
-      {/* Image */}
-      <div className={`h-[88px] bg-cream-200 overflow-hidden relative ${deal.contain ? 'flex items-center justify-center' : ''}`}>
+    <div className="group min-w-[160px] bg-white border border-cream-300 rounded-[1.5rem] overflow-hidden flex-shrink-0 transition-all hover:shadow-md active:scale-95">
+      {/* Image Container */}
+      <div className={`h-24 bg-cream-100 overflow-hidden relative ${deal.contain ? 'flex items-center justify-center' : ''}`}>
         <img
           src={deal.img}
           alt={deal.name}
-          className={`${deal.contain ? 'h-full w-auto object-contain p-2' : 'w-full h-full object-cover'}`}
-          onError={e => { e.target.style.display = 'none' }}
+          className={`transition-transform duration-500 group-hover:scale-110 ${deal.contain ? 'h-4/5 w-auto object-contain' : 'w-full h-full object-cover'}`}
+          onError={e => { e.target.src = 'https://placehold.co/400x400?text=K%26Q' }}
         />
-        {/* Discount badge */}
-        <div className="absolute top-2 right-2 bg-ember text-white text-[10px] font-bold px-1.5 py-0.5 rounded-lg">
+        {/* Glassmorphism Badge */}
+        <div className="absolute top-2 right-2 bg-ember/90 backdrop-blur-sm text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-sm">
           -{discount}%
         </div>
-        {/* Category tag */}
-        <div className="absolute top-2 left-2">
-          <span className="badge-gold">{deal.tag}</span>
+        <div className="absolute bottom-2 left-2">
+          <span className="bg-white/90 backdrop-blur-sm text-gold text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-md border border-gold/10">
+            {deal.tag}
+          </span>
         </div>
       </div>
 
       {/* Info */}
-      <div className="p-2.5">
-        <p className="text-xs font-semibold text-ink truncate mb-1.5">{deal.name}</p>
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-sm font-bold text-gold" style={{ fontFamily: 'DM Mono, monospace' }}>{deal.now}</span>
-          <span className="text-[11px] text-ink-ghost line-through">{deal.was}</span>
+      <div className="p-3">
+        <p className="text-[11px] font-bold text-ink truncate mb-1">{deal.name}</p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-black text-gold">{deal.now}</span>
+          <span className="text-[10px] text-ink-ghost line-through opacity-60">{deal.was}</span>
         </div>
       </div>
     </div>
@@ -70,18 +73,20 @@ function DealCard({ deal }) {
 
 export default function DealsStrip() {
   return (
-    <div className="px-4 mt-4">
-      <div className="flex justify-between items-center mb-3">
-        <div className="flex items-center gap-2">
-          <span className="font-serif text-sm font-bold text-ink">Deals &amp; Promotions</span>
-          <span className="badge-gold">{deals.length} offers</span>
+    <div className="mt-6">
+      <div className="px-4 flex justify-between items-end mb-4">
+        <div>
+          <h2 className="text-[10px] font-black text-ink-ghost uppercase tracking-[0.2em] mb-1">Limited Time</h2>
+          <p className="font-serif text-lg font-bold text-ink leading-none">Featured Deals</p>
         </div>
-        <button className="text-xs text-gold font-semibold hover:text-gold-dark transition-colors">See all →</button>
+        <button className="text-[10px] font-bold text-gold uppercase tracking-widest border-b-2 border-gold/20 pb-0.5 hover:border-gold transition-all">
+          View All
+        </button>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none -mx-0.5 px-0.5">
+      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none px-4 snap-x snap-mandatory">
         {deals.map((deal, i) => (
-          <div key={i} className="fade-up" style={{ animationDelay: `${i * 0.06}s` }}>
+          <div key={i} className="snap-start animate-in fade-in slide-in-from-right-4" style={{ animationDelay: `${i * 100}ms` }}>
             <DealCard deal={deal} />
           </div>
         ))}

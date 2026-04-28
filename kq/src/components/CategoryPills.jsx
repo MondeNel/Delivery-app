@@ -1,21 +1,23 @@
 export default function CategoryPills({ categories, active, onChange }) {
   return (
-    <div className="overflow-x-auto -mx-1 px-1 mb-3 scrollbar-none">
-      <div className="flex gap-1.5 min-w-max py-0.5">
-        {categories.map(cat => (
-          <button
-            key={cat}
-            onClick={() => onChange(cat)}
-            className={`btn-press text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap border transition-all duration-200 flex-shrink-0 ${
-              active === cat
-                ? 'bg-gold text-white border-gold shadow-gold'
-                : 'bg-white border-cream-300 text-ink-mid hover:border-gold-border hover:text-gold-dark'
-            }`}
-            style={active === cat ? { boxShadow: '0 2px 8px rgba(184,134,11,0.25)' } : {}}
-          >
-            {cat}
-          </button>
-        ))}
+    <div className="overflow-x-auto -mx-1 px-1 mb-4 scrollbar-none">
+      <div className="flex gap-2 min-w-max py-1">
+        {categories.map(cat => {
+          const isActive = active.toLowerCase() === cat.toLowerCase();
+          return (
+            <button
+              key={cat}
+              onClick={() => onChange(cat)}
+              className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-300 border-2 ${
+                isActive
+                  ? 'bg-ink text-white border-ink shadow-lg shadow-ink/20 scale-105'
+                  : 'bg-white border-cream-200 text-ink-ghost hover:border-gold/30 hover:text-gold'
+              }`}
+            >
+              {cat}
+            </button>
+          );
+        })}
       </div>
     </div>
   )

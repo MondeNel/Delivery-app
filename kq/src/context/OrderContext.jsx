@@ -1,33 +1,44 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react';
 
-const OrderContext = createContext()
+const OrderContext = createContext();
 
-export function OrderProvider({ children }) {
-  const [order, setOrder] = useState(null)
+// Precise coordinates for Oasis St, Prieska, 8940
+export const K_AND_Q_COORDS = { lat: -29.6644, lng: 22.7483 };
+
+export const OrderProvider = ({ children }) => {
+  const [orderStatus, setOrderStatus] = useState(null);
+
+  useEffect(() => {
+    if (orderStatus === 'received') {
+      const timer = setTimeout(() => setOrderStatus('preparing'), 5000);
+      return () => clearTimeout(timer);
+    }
+    if (orderStatus === 'preparing') {
+      const timer = setTimeout(() => setOrderStatus('out'), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [orderStatus]);
+
+  const updateOrderStatus = (newStatus) => setOrderStatus(newStatus);
 
   const placeOrder = () => {
-    const newOrder = {
-      id: 'KQ-' + Math.floor(1000 + Math.random() * 9000),
+    setOrderStatus('received'); 
+    return {
+      id: `KQ-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'received',
-      time: Date.now(),
-    }
-    setOrder(newOrder)
-    return newOrder
-  }
-
-  const updateOrderStatus = (status) => {
-    setOrder(prev => prev ? { ...prev, status } : null)
-  }
+      timestamp: new Date().toISOString(),
+    };
+  };
 
   return (
-    <OrderContext.Provider value={{ order, placeOrder, updateOrderStatus, setOrder }}>
+    <OrderContext.Provider value={{ orderStatus, updateOrderStatus, placeOrder }}>
       {children}
     </OrderContext.Provider>
-  )
-}
+  );
+};
 
-export function useOrder() {
-  const ctx = useContext(OrderContext)
-  if (!ctx) throw new Error('useOrder must be used inside OrderProvider')
-  return ctx
-}
+export const useOrder = () => {
+  const context = useContext(OrderContext);
+  if (!context) throw new Error('useOrder must be used within OrderProvider');
+  return context;
+};

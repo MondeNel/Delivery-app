@@ -22,7 +22,10 @@ function cartReducer(state, action) {
       return {
         ...state,
         items: state.items
-          .map(i => i.id === action.payload.id ? { ...i, qty: i.qty + action.payload.delta } : i)
+          .map(i => i.id === action.payload.id 
+            ? { ...i, qty: Math.max(0, i.qty + action.payload.delta) } 
+            : i
+          )
           .filter(i => i.qty > 0)
       }
     case 'CLEAR_CART':
@@ -45,7 +48,7 @@ export function CartProvider({ children }) {
   }, [state])
 
   const subtotal = state.items.reduce((sum, i) => sum + i.price * i.qty, 0)
-  const count    = state.items.reduce((sum, i) => sum + i.qty, 0)
+  const count = state.items.reduce((sum, i) => sum + i.qty, 0)
 
   return (
     <CartContext.Provider value={{ items: state.items, dispatch, subtotal, count }}>
@@ -55,7 +58,5 @@ export function CartProvider({ children }) {
 }
 
 export function useCart() {
-  const ctx = useContext(CartContext)
-  if (!ctx) throw new Error('useCart must be used inside CartProvider')
-  return ctx
+  return useContext(CartContext)
 }
