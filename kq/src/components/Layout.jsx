@@ -4,8 +4,6 @@ import BottomNav from './BottomNav'
 import CartDrawer from './CartDrawer'
 import CheckoutModal from './CheckoutModal'
 import TrackingBar from './TrackingBar'
-import { useCart } from '../context/CartContext'
-import { useOrder } from '../context/OrderContext'
 import { useState } from 'react'
 
 export default function Layout() {
@@ -13,10 +11,10 @@ export default function Layout() {
   const [checkoutOpen, setCheckoutOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-cream font-sans text-text-primary">
+    <div className="min-h-screen bg-dark font-sans text-white">
       <Header onCartClick={() => setCartOpen(true)} />
       <TrackingBar />
-      <main className="pb-20"> {/* bottom nav space */}
+      <main className="pb-20">
         <Outlet />
       </main>
       <BottomNav />

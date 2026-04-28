@@ -16,8 +16,8 @@ export default function DrinksPanel({ search }) {
   }, [cat, search])
 
   return (
-    <div className="bg-white rounded-lg p-3 border border-border-light">
-      <h2 className="font-serif text-base text-text-primary mb-2 pb-2 border-b border-border-light">Drinks</h2>
+    <div className="bg-surface rounded-lg p-3 border border-subtle">
+      <h2 className="font-serif text-base text-white mb-2 pb-2 border-b border-subtle">Drinks</h2>
       <CategoryPills categories={categories} active={cat} onChange={setCat} />
       <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
         {filtered.map(d => <ItemCard key={d.id} item={d} />)}

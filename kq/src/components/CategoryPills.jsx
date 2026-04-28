@@ -8,8 +8,8 @@ export default function CategoryPills({ categories, active, onChange }) {
             onClick={() => onChange(cat)}
             className={`text-[11px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap border flex-shrink-0
               ${active === cat
-                ? 'bg-gold-light border-gold text-warm-dark'
-                : 'bg-cream border-transparent text-text-tertiary hover:border-border-light'}`}
+                ? 'bg-accent-light border-accent text-warm-dark'
+                : 'bg-gray-700 border-transparent text-text-tertiary hover:border-subtle'}`}
           >
             {cat}
           </button>

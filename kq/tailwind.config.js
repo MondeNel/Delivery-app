@@ -4,23 +4,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: '#F5F4F0',
-        gold: '#BA7517',
-        'gold-light': '#FAEEDA',
-        'gold-border': '#EF9F27',
-        'text-primary': '#1A1A1A',
-        'text-secondary': '#6B7280',
+        dark: '#121212',
+        surface: '#1E1E1E',
+        accent: '#E91E63',
+        'accent-light': '#FCE4EC',
+        'accent-border': '#F48FB1',
+        'green-light': '#1B5E20',
+        'green-border': '#4CAF50',
+        'green-text': '#A5D6A7',
+        'warm-dark': '#FCE4EC',   // used for banner text on accent-light bg
+        'warm-border': '#F48FB1',
+        'text-secondary': '#D1D5DB',
         'text-tertiary': '#9CA3AF',
-        'border-light': '#E5E7EB',
-        'green-light': '#EAF3DE',
-        'green-border': '#97C459',
-        'green-text': '#27500A',
-        'warm-dark': '#633806',
-        'warm-border': '#854F0B',
+        'border-light': '#2A2A2A',
       },
       fontFamily: {
         serif: ['Georgia', 'Times New Roman', 'serif'],
-        sans: ['system-ui', '-apple-system', 'sans-serif'],
+        sans: ['DM Sans', 'sans-serif'],
       },
       borderRadius: {
         'lg': '12px',

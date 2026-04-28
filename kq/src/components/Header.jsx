@@ -6,10 +6,10 @@ export default function Header({ onCartClick }) {
   const { count } = useCart()
 
   return (
-    <header className="bg-white border-b border-border-light sticky top-0 z-40">
+    <header className="bg-surface border-b border-subtle sticky top-0 z-40">
       <div className="flex items-center justify-between px-3 sm:px-4 py-3 gap-2 sm:gap-4">
-        <h1 className="font-serif text-base sm:text-lg text-gold whitespace-nowrap">
-          Kings & <span className="text-text-primary">Queens</span>
+        <h1 className="font-serif text-base sm:text-lg text-accent whitespace-nowrap">
+          Kings & <span className="text-white">Queens</span>
         </h1>
 
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
@@ -25,7 +25,7 @@ export default function Header({ onCartClick }) {
           {/* Cart icon – pulses when items present */}
           <button
             onClick={onCartClick}
-            className={`bg-gold text-white w-8 h-8 sm:w-9 sm:h-9 rounded-md flex items-center justify-center relative flex-shrink-0 ${
+            className={`bg-accent text-white w-8 h-8 sm:w-9 sm:h-9 rounded-md flex items-center justify-center relative flex-shrink-0 ${
               count > 0 ? 'cart-pulse' : ''
             }`}
           >
@@ -41,12 +41,12 @@ export default function Header({ onCartClick }) {
 
       {/* Search bar */}
       <div className="px-3 sm:px-4 pb-3">
-        <div className="flex items-center bg-cream rounded-md px-3 py-2 gap-2">
+        <div className="flex items-center bg-gray-800 rounded-md px-3 py-2 gap-2">
           <FiSearch className="text-text-tertiary flex-shrink-0" size={14} />
           <input
             type="text"
             placeholder="Search drinks, food..."
-            className="bg-transparent border-none outline-none text-sm w-full text-text-primary placeholder-text-tertiary"
+            className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-text-tertiary"
             onChange={(e) => window.dispatchEvent(new CustomEvent('search', { detail: e.target.value }))}
           />
         </div>

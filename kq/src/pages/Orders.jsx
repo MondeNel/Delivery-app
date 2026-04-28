@@ -17,17 +17,17 @@ export default function Orders() {
 
   return (
     <div className="p-4 pb-20">
-      <h2 className="font-serif text-xl text-text-primary mb-4">My Orders</h2>
+      <h2 className="font-serif text-xl text-white mb-4">My Orders</h2>
 
       {orders.length === 0 ? (
         <p className="text-sm text-text-tertiary text-center py-8">No orders yet</p>
       ) : (
         <div className="space-y-3">
           {orders.slice().reverse().map(o => (
-            <div key={o.id} className="bg-white border border-border-light rounded-lg p-4">
+            <div key={o.id} className="bg-surface border border-subtle rounded-lg p-4">
               <div className="flex justify-between mb-1">
-                <span className="font-medium text-text-primary">#{o.id}</span>
-                <span className="text-gold font-medium">R{o.total}</span>
+                <span className="font-medium text-white">#{o.id}</span>
+                <span className="text-accent font-medium">R{o.total}</span>
               </div>
               <div className="flex items-center gap-1 text-xs text-text-tertiary">
                 <FiShoppingBag size={12} />
@@ -35,7 +35,7 @@ export default function Orders() {
               </div>
               <div className="flex flex-wrap gap-1 mt-2">
                 {o.items.map(item => (
-                  <span key={item.id} className="text-[10px] bg-cream px-2 py-0.5 rounded-full text-text-secondary">
+                  <span key={item.id} className="text-[10px] bg-gray-800 px-2 py-0.5 rounded-full text-text-secondary">
                     {item.name} x{item.qty}
                   </span>
                 ))}

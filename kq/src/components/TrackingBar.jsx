@@ -12,13 +12,12 @@ const STAGES = [
   { key: 'out', label: 'Out for Delivery', icon: FiTruck },
 ]
 
-// K&Q business location (Oasis St, Prieska)
 const STORE_LOCATION = { lat: -29.677, lng: 22.745 }
 
-// Custom car icon (gold circle with car SVG)
+// car icon with magenta
 const carIcon = L.divIcon({
   className: '',
-  html: `<div style="background:#BA7517;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;box-shadow:0 0 0 4px rgba(186,117,23,0.4);">
+  html: `<div style="background:#E91E63;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;box-shadow:0 0 0 4px rgba(233,30,99,0.4);">
     <svg width="18" height="18" viewBox="0 0 512 512" fill="currentColor"><path d="M135.2 117.4L109.1 192H402.9l-26.1-74.6C372.3 104.6 360.2 96 346.6 96H165.4c-13.6 0-25.7 8.6-30.2 21.4zM39.6 196.8L74.8 96.3C88.3 57.8 124.6 32 165.4 32h181.2c40.8 0 77.1 25.8 90.6 64.3l35.2 100.5c23.2 9.6 39.6 32.5 39.6 59.2v128c0 17.7-14.3 32-32 32h-32c0 35.3-28.7 64-64 64s-64-28.7-64-64H224c0 35.3-28.7 64-64 64s-64-28.7-64-64H64c-17.7 0-32-14.3-32-32V256c0-26.7 16.4-49.6 39.6-59.2zM128 288a32 32 0 100-64 32 32 0 100 64zm288-32a32 32 0 10-64 0 32 32 0 1064 0z"/></svg>
   </div>`,
   iconSize: [36, 36],
@@ -34,7 +33,7 @@ function interpolate(a, b, t) {
 
 function calculateDistance(a, b) {
   if (!a || !b) return 0
-  const R = 6371 // Earth radius in km
+  const R = 6371
   const dLat = (b.lat - a.lat) * (Math.PI / 180)
   const dLng = (b.lng - a.lng) * (Math.PI / 180)
   const sinLat = Math.sin(dLat / 2)
@@ -51,14 +50,13 @@ export default function TrackingBar() {
   const [driverProgress, setDriverProgress] = useState(0)
   const animationFrame = useRef(null)
   const startTime = useRef(null)
-  const duration = 10000 // 10 seconds simulation
+  const duration = 10000
 
   const placedOrder = orders.find(o => o.id === order?.id)
   const customerLocation = placedOrder?.lat && placedOrder?.lng
     ? { lat: placedOrder.lat, lng: placedOrder.lng }
     : null
 
-  // Smooth car animation
   useEffect(() => {
     if (order?.status === 'out' && customerLocation) {
       startTime.current = Date.now()
@@ -79,7 +77,6 @@ export default function TrackingBar() {
     }
   }, [order?.status, customerLocation])
 
-  // Re‑render clock once per second
   useEffect(() => {
     if (!order) return
     const timer = setInterval(() => setNow(Date.now()), 1000)
@@ -108,14 +105,12 @@ export default function TrackingBar() {
     ? interpolate(STORE_LOCATION, customerLocation, driverProgress)
     : STORE_LOCATION
 
-  // Route lines
   const routePoints = customerLocation ? [STORE_LOCATION, customerLocation] : []
   const traveledPoints = customerLocation ? [STORE_LOCATION, driverPos] : []
   const distance = customerLocation ? calculateDistance(STORE_LOCATION, customerLocation) : 0
 
   return (
-    <div className="mx-4 mt-3 mb-4 bg-white border border-border-light rounded-lg p-4">
-      {/* Header */}
+    <div className="mx-4 mt-3 mb-4 bg-surface border border-subtle rounded-lg p-4">
       <div className="flex justify-between items-center mb-3">
         <div>
           <div className="text-xs text-text-tertiary font-medium uppercase tracking-wide">
@@ -132,13 +127,12 @@ export default function TrackingBar() {
             </div>
           )}
         </div>
-        <span className="text-[10px] text-gold font-medium bg-gold-light px-2 py-0.5 rounded-full">
+        <span className="text-[10px] text-accent font-medium bg-accent-light px-2 py-0.5 rounded-full">
           {currentStage === 'out' ? 'On the way!' : 'Preparing'}
         </span>
       </div>
 
-      {/* Larger map with route */}
-      <div className="mb-3 rounded-md overflow-hidden border border-border-light h-56">
+      <div className="mb-3 rounded-md overflow-hidden border border-subtle h-56">
         <MapContainer
           center={customerLocation || STORE_LOCATION}
           zoom={14}
@@ -149,45 +143,40 @@ export default function TrackingBar() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {/* Store (always visible) */}
           <Marker position={STORE_LOCATION}>
             <Popup>Kings &amp; Queens</Popup>
           </Marker>
 
-          {/* Customer pin (if shared location) */}
           {customerLocation && (
             <CircleMarker
               center={customerLocation}
               radius={6}
-              color="#BA7517"
-              fillColor="#BA7517"
+              color="#E91E63"
+              fillColor="#E91E63"
               fillOpacity={0.6}
             >
               <Popup>Your location</Popup>
             </CircleMarker>
           )}
 
-          {/* Full route (dashed) */}
           {routePoints.length === 2 && (
             <Polyline
               positions={routePoints}
-              color="#BA7517"
+              color="#E91E63"
               dashArray="8 6"
               weight={3}
               opacity={0.5}
             />
           )}
 
-          {/* Traveled portion (solid) */}
           {traveledPoints.length === 2 && currentStage === 'out' && (
             <Polyline
               positions={traveledPoints}
-              color="#BA7517"
+              color="#E91E63"
               weight={4}
             />
           )}
 
-          {/* Moving car – only when out for delivery */}
           {currentStage === 'out' && (
             <Marker position={driverPos} icon={carIcon}>
               <Popup>Your driver</Popup>
@@ -196,7 +185,6 @@ export default function TrackingBar() {
         </MapContainer>
       </div>
 
-      {/* Vertical timeline */}
       <div className="space-y-0">
         {STAGES.map((stage, i) => {
           const Icon = stage.icon
@@ -210,8 +198,8 @@ export default function TrackingBar() {
                 <div
                   className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                     isCompleted
-                      ? 'bg-gold border-gold text-white'
-                      : 'bg-white border-border-light text-text-tertiary'
+                      ? 'bg-accent border-accent text-white'
+                      : 'bg-surface border-subtle text-text-tertiary'
                   } ${isCurrent ? 'pulse-step' : ''}`}
                 >
                   {isCompleted ? <Icon size={14} /> : <span className="text-xs">{i + 1}</span>}
@@ -220,8 +208,8 @@ export default function TrackingBar() {
                   <div
                     className={`w-0.5 flex-1 min-h-[24px] my-1 ${
                       isCompleted && i < STAGES.findIndex(s => s.key === currentStage)
-                        ? 'bg-gold'
-                        : 'bg-border-light'
+                        ? 'bg-accent'
+                        : 'bg-subtle'
                     }`}
                   />
                 )}
@@ -229,7 +217,7 @@ export default function TrackingBar() {
               <div className="flex flex-col justify-center pb-4">
                 <span
                   className={`text-xs font-medium ${
-                    isCompleted ? 'text-gold' : 'text-text-tertiary'
+                    isCompleted ? 'text-accent' : 'text-text-tertiary'
                   }`}
                 >
                   {stage.label}
