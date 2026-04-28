@@ -18,13 +18,22 @@ export default function CheckoutModal({ open, onClose }) {
   const { items, subtotal, dispatch } = useCart()
   const { placeOrder, updateOrderStatus } = useOrder()
   const { addOrder } = usePlacedOrders()
-  const [position, setPosition] = useState(null)
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [address, setAddress] = useState('')
+  const { profile, updateProfile } = useProfile()
+
+  // Pre‑fill from saved profile, fallback to empty
+  const [name, setName] = useState(profile.name || '')
+  const [phone, setPhone] = useState(profile.phone || '')
+  const [address, setAddress] = useState(profile.address || '')
   const [notes, setNotes] = useState('')
+  const [position, setPosition] = useState(null)
+  const [saveDetails, setSaveDetails] = useState(!!profile.name) // ticked if profile exists
 
   const handlePlaceOrder = () => {
+    // Save to profile if checkbox is ticked
+    if (saveDetails && (name || phone || address)) {
+      updateProfile({ name, phone, address })
+    }
+
     const newOrder = placeOrder()
     const orderData = {
       id: newOrder.id,
@@ -37,12 +46,13 @@ export default function CheckoutModal({ open, onClose }) {
       items: [...items],
       total: subtotal + 20,
       status: 'received',
-      time: new Date().toISOString()
+      time: new Date().toISOString(),
     }
     addOrder(orderData)
     dispatch({ type: 'CLEAR_CART' })
     onClose()
 
+    // Simulate tracking updates
     setTimeout(() => updateOrderStatus('preparing'), 3000)
     setTimeout(() => updateOrderStatus('out'), 7000)
   }
@@ -115,6 +125,17 @@ export default function CheckoutModal({ open, onClose }) {
               className="w-full bg-cream border border-border-light rounded-md p-2.5 text-sm mt-1 outline-none focus:border-gold"
             />
           </div>
+
+          {/* Save details checkbox */}
+          <label className="flex items-center gap-2 text-xs text-text-secondary cursor-pointer">
+            <input
+              type="checkbox"
+              checked={saveDetails}
+              onChange={(e) => setSaveDetails(e.target.checked)}
+              className="accent-gold"
+            />
+            Save my details for next time
+          </label>
         </div>
 
         <div className="p-4 border-t border-border-light flex-shrink-0">
