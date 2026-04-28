@@ -6,6 +6,10 @@ export default function DealsStrip() {
     { name: 'Wings + 2 Beers (Tue)', now: 'R80', was: 'R110', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Castle_Lager_beers.jpg/240px-Castle_Lager_beers.jpg' },
     { name: 'Savanna Dry 6-Pack', now: 'R140', was: 'R180', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hunters_cider.jpg/240px-Hunters_cider.jpg' },
     { name: 'Beef Combo Special', now: 'R55', was: 'R70', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Castle_Lager_beers.jpg/240px-Castle_Lager_beers.jpg' },
+    { name: 'Heineken 6-Pack', now: 'R160', was: 'R200', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Heineken_Beer.jpg/240px-Heineken_Beer.jpg' },
+    { name: 'Vodka + 2 Hunters', now: 'R95', was: 'R130', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hunters_cider.jpg/240px-Hunters_cider.jpg' },
+    { name: 'Weekend Braai Pack', now: 'R210', was: 'R280', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Castle_Lager_beers.jpg/240px-Castle_Lager_beers.jpg' },
+    { name: 'Castle Lite 6-Pack', now: 'R75', was: 'R95', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Castle_Lager_beers.jpg/240px-Castle_Lager_beers.jpg' },
   ]
 
   return (
