@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext'
 import { useOrder, K_AND_Q_COORDS } from '../context/OrderContext'
 import { useProfile } from '../context/ProfileContext'
 import { usePlacedOrders } from '../context/PlacedOrdersContext'
+import { useAuth } from '../context/AuthContext'                              // ← new
 import { FiNavigation, FiX, FiMapPin, FiPhone, FiUser, FiInfo, FiAlertTriangle } from 'react-icons/fi'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -73,6 +74,7 @@ export default function CheckoutModal({ open, onClose }) {
   const { placeOrder }                = useOrder()
   const { addOrder }                  = usePlacedOrders()
   const { profile, updateProfile }    = useProfile()
+  const { user }                      = useAuth()            // ← new
 
   const [name,     setName]     = useState(profile.name    || '')
   const [phone,    setPhone]    = useState(profile.phone   || '')
@@ -119,6 +121,15 @@ export default function CheckoutModal({ open, onClose }) {
   }
 
   const handlePlaceOrder = () => {
+    // ── auth gate ──────────────────────────────────────────
+    if (!user) {
+      alert('Please log in to place an order.')
+      onClose()
+      // Optionally redirect to login page:
+      // window.location.href = '/login'
+      return
+    }
+
     if (!name || !phone) return alert('Please provide a name and phone number.')
     if (confirmBlocked)  return // shouldn't be reachable but safety net
 

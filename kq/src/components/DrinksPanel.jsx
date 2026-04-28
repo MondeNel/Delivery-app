@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { drinks } from '../data/products'
 import CategoryPills from './CategoryPills'
 import ItemCard from './ItemCard'
+import { useProducts } from '../context/ProductsContext'
 
 // Category labels must match the `cat` values in products.js exactly (case-insensitive)
 const CATEGORIES = [
@@ -16,6 +17,7 @@ const CATEGORIES = [
 export default function DrinksPanel({ search, onCardClick }) {
   const [activeCat, setActiveCat] = useState('all')
 
+  const { drinks } = useProducts()
   const filtered = useMemo(() => drinks.filter(d => {
     const matchCat    = activeCat === 'all' || d.cat.toLowerCase() === activeCat
     const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase())

@@ -3,6 +3,7 @@ import { useOrder } from '../context/OrderContext'
 import { usePlacedOrders } from '../context/PlacedOrdersContext'
 import { FiCheck, FiClock, FiTruck } from 'react-icons/fi'
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet'
+import { FiX } from 'react-icons/fi'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -31,6 +32,7 @@ const customerDot = L.divIcon({
   iconSize: [16, 16],
   iconAnchor: [8, 8],
 })
+
 
 // ── Keep map viewport centred on moving car ───────────────────
 function MapController({ center, zoom }) {
@@ -282,67 +284,83 @@ export default function TrackingBar() {
       </div>
 
       {/* ── Map ── */}
-      <div className="h-80 w-full rounded-[2.5rem] overflow-hidden border-2 border-cream-100 mb-10 relative bg-[#f8f9fa] shadow-inner">
-        <MapContainer
-          center={[businessLoc.lat, businessLoc.lng]}
-          zoom={15}
-          style={{ height: '100%', width: '100%' }}
-          zoomControl={false}
+      {showMap ? (
+        <div className="fixed inset-0 z-[2000] bg-black flex flex-col">
+          <button
+            onClick={() => setShowMap(false)}
+            className="absolute top-4 right-4 z-[3000] w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg"
+          >
+            <FiX size={20} className="text-ink" />
+          </button>
+
+          <div className="flex-1 w-full">
+            <MapContainer
+              center={[businessLoc.lat, businessLoc.lng]}
+              zoom={15}
+              style={{ height: '100%', width: '100%' }}
+              zoomControl={false}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <MapController center={mapCenter} zoom={mapZoom} />
+
+              <Marker position={[businessLoc.lat, businessLoc.lng]} icon={storeIcon} />
+              <Marker position={[dest.lat, dest.lng]} icon={customerDot} />
+
+              {route.length > 1 && orderStatus === 'out' && (
+                <Polyline
+                  positions={route}
+                  color="#B8860B"
+                  weight={4}
+                  opacity={0.18}
+                  dashArray="6 8"
+                />
+              )}
+
+              {traveledPath.length > 1 && (
+                <Polyline
+                  positions={traveledPath}
+                  color="#B8860B"
+                  weight={6}
+                  opacity={0.9}
+                />
+              )}
+
+              <Marker position={carPos} icon={carIcon} />
+            </MapContainer>
+
+            {/* Overlay badges inside the modal */}
+            {orderStatus !== 'out' && (
+              <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl border border-cream-200 shadow-sm">
+                <p className="text-[10px] font-black text-ink uppercase tracking-tighter">
+                  Awaiting Dispatch
+                </p>
+              </div>
+            )}
+
+            {orderStatus === 'out' && etaText && (
+              <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-ink/90 backdrop-blur-md px-5 py-2 rounded-2xl shadow-xl flex items-center gap-2">
+                <FiTruck size={13} className="text-gold" />
+                <p className="text-[11px] font-black text-white uppercase tracking-tighter whitespace-nowrap">
+                  {etaText}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setShowMap(true)}
+          className="h-20 w-full bg-cream-100 border-2 border-dashed border-cream-300 rounded-[2rem] flex flex-col items-center justify-center gap-1 hover:bg-cream-200 transition-colors mb-10"
         >
-          <TileLayer
-  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-/>
-
-          {/* Store origin */}
-          <Marker position={[businessLoc.lat, businessLoc.lng]} icon={storeIcon} />
-
-          {/* Customer destination */}
-          <Marker position={[dest.lat, dest.lng]} icon={customerDot} />
-
-          {/* Full route (faint) */}
-          {route.length > 1 && orderStatus === 'out' && (
-            <Polyline
-              positions={route}
-              color="#B8860B"
-              weight={4}
-              opacity={0.18}
-              dashArray="6 8"
-            />
-          )}
-
-          {/* Traveled portion (solid, bold) */}
-          {traveledPath.length > 1 && (
-            <Polyline
-              positions={traveledPath}
-              color="#B8860B"
-              weight={6}
-              opacity={0.9}
-            />
-          )}
-
-          {/* Delivery vehicle */}
-          <Marker position={carPos} icon={carIcon} />
-        </MapContainer>
-
-        {/* Overlay badges */}
-        {orderStatus !== 'out' && (
-          <div className="absolute top-4 right-4 z-[1000] bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl border border-cream-200 shadow-sm">
-            <p className="text-[10px] font-black text-ink uppercase tracking-tighter">
-              Awaiting Dispatch
-            </p>
-          </div>
-        )}
-
-        {orderStatus === 'out' && etaText && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-ink/90 backdrop-blur-md px-5 py-2 rounded-2xl shadow-xl flex items-center gap-2">
-            <FiTruck size={13} className="text-gold" />
-            <p className="text-[11px] font-black text-white uppercase tracking-tighter whitespace-nowrap">
-              {etaText}
-            </p>
-          </div>
-        )}
-      </div>
+          <FiTruck size={18} className="text-gold" />
+          <span className="text-[10px] font-black text-ink uppercase tracking-widest">
+            Track on Map
+          </span>
+        </button>
+      )}
 
       {/* ── Vertical Stepper ── */}
       <div className="space-y-10 ml-2">

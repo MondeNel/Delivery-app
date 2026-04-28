@@ -3,11 +3,14 @@ import { foods } from '../data/products'
 import CategoryPills from './CategoryPills'
 import ItemCard from './ItemCard'
 
+import { useProducts } from '../context/ProductsContext'
+
 export default function FoodPanel({ search, onCardClick }) {
   const [cat, setCat] = useState('All')
   const categories = ['All', 'Combo', 'Grill', 'Single', 'Side']
 
-  const filtered = useMemo(() => foods.filter(f => {
+  const { drinks } = useProducts()
+  const filtered = useMemo(() => drinks.filter(f => {
     const matchCat = cat === 'All' || f.cat.toLowerCase() === cat.toLowerCase()
     const matchSearch = !search || f.name.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch

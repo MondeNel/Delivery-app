@@ -1,98 +1,301 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { useState, useMemo } from 'react'
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
 import { usePlacedOrders } from '../context/PlacedOrdersContext'
-import { useOrder } from '../context/OrderContext'
-import { FiClock, FiCheckCircle, FiTruck } from 'react-icons/fi'
+import { useOrder, K_AND_Q_COORDS } from '../context/OrderContext'
+import { FiTruck, FiPhone, FaWhatsapp, FiChevronLeft, FiEdit3 } from 'react-icons/fi'
+import { FaWhatsapp } from 'react-icons/fa'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
-const statusColors = {
-  received:  'bg-sage-light text-sage-text border-sage-border',
-  preparing: 'bg-gold-light text-gold-dark border-gold-border',
-  out:       'bg-ember-light text-ember border-ember-border',
+// ── Distance helper ──
+function haversineKm(a, b) {
+  const R = 6371
+  const dLat = (b.lat - a.lat) * Math.PI / 180
+  const dLng = (b.lng - a.lng) * Math.PI / 180
+  const h = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1-h))
 }
 
-function StatusButton({ label, active, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={active}
-      className={`btn-press text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all disabled:opacity-40 disabled:cursor-default ${
-        active ? 'bg-gold-light border-gold-border text-gold-dark' : 'bg-cream-100 border-cream-300 text-ink-mid hover:border-gold-border'
-      }`}
-    >
-      {label}
-    </button>
-  )
-}
+// ── Custom marker icons ──
+const storeIcon = L.icon({
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25,41], iconAnchor: [12,41], popupAnchor: [1,-34], shadowSize: [41,41]
+})
+const customerIcon = L.divIcon({
+  className: '',
+  html: `<div style="background:#B8860B;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 3px rgba(184,134,11,0.4)"></div>`,
+  iconSize: [18,18], iconAnchor: [9,9]
+})
 
 export default function Admin() {
-  const { orders, updateOrderStatus: updatePlaced } = usePlacedOrders()
-  const { updateOrderStatus } = useOrder()
+  const { orders, completedOrders, updateOrder, completeOrder } = usePlacedOrders()
+  const { markOutForDelivery } = useOrder()
+  const [tab, setTab] = useState('orders')  // 'orders' | 'prices'
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [showMap, setShowMap] = useState(false)
 
-  const handleStatus = (id, status) => {
-    updatePlaced(id, status)
-    updateOrderStatus(status)
+  // Filter only active orders (not completed)
+  const activeOrders = useMemo(() => {
+    return orders.filter(o => o.status !== 'completed')
+  }, [orders])
+
+  // Sort by distance from store
+  const sortedOrders = useMemo(() => {
+    return [...activeOrders].sort((a, b) => {
+      const distA = a.lat && a.lng ? haversineKm(K_AND_Q_COORDS, { lat: a.lat, lng: a.lng }) : 9999
+      const distB = b.lat && b.lng ? haversineKm(K_AND_Q_COORDS, { lat: b.lat, lng: b.lng }) : 9999
+      return distA - distB
+    })
+  }, [activeOrders])
+
+  // Handlers
+  const handleStartDelivery = (order) => {
+    updateOrder(order.id, { status: 'out' })          // mark placed order
+    markOutForDelivery()                                // triggers user's tracking animation
+    setSelectedOrder(order)
+    setShowMap(true)
+  }
+
+  const handleCompleteDelivery = (orderId) => {
+    completeOrder(orderId)                              // moves to completed list
+    // if it was the current displayed order, clear map
+    if (selectedOrder?.id === orderId) {
+      setSelectedOrder(null)
+      setShowMap(false)
+    }
   }
 
   return (
-    <div className="p-4 pb-24 animate-fade-up">
-      <div className="mb-5">
-        <h2 className="font-serif text-2xl font-bold text-ink">Admin Dashboard</h2>
-        <p className="text-xs text-ink-ghost mt-1">Manage and track incoming orders</p>
+    <div className="p-4 pb-20">
+      {/* Tab switcher */}
+      <div className="flex gap-2 mb-6">
+        {['orders', 'prices'].map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider ${
+              tab === t ? 'bg-gold text-white' : 'bg-cream-200 text-ink-muted'
+            }`}
+          >
+            {t === 'orders' ? 'Orders' : 'Prices'}
+          </button>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Map */}
-        <div className="bg-white border border-cream-300 rounded-2xl p-4" style={{ boxShadow: '0 1px 4px rgba(26,22,18,0.06)' }}>
-          <h3 className="font-serif text-base font-bold text-ink mb-3">Order Map</h3>
-          <div className="h-64 rounded-xl overflow-hidden border border-cream-300">
-            <MapContainer center={[-29.677, 22.745]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-              <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              {orders.filter(o => o.lat && o.lng).map(order => (
-                <Marker key={order.id} position={[order.lat, order.lng]}>
-                  <Popup>
-                    <div className="text-sm">
-                      <strong>#{order.id}</strong> — {order.customer}<br />
-                      <span className="font-mono font-bold text-gold-dark">R{order.total}</span> · {order.status}
+      {tab === 'orders' && (
+        <>
+          <h2 className="font-serif text-xl font-bold text-ink mb-4">
+            Active Orders ({sortedOrders.length})
+          </h2>
+          {sortedOrders.length === 0 ? (
+            <p className="text-ink-muted text-sm">No active orders at the moment.</p>
+          ) : (
+            <div className="space-y-4">
+              {sortedOrders.map(order => {
+                const dist = order.lat && order.lng
+                  ? haversineKm(K_AND_Q_COORDS, { lat: order.lat, lng: order.lng }).toFixed(1)
+                  : '?'
+                return (
+                  <div key={order.id} className="bg-white rounded-2xl p-4 border border-cream-200 shadow-sm">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-bold text-ink">#{order.id}</span>
+                      <span className="text-gold font-bold">R{order.total}</span>
                     </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
-        </div>
+                    <div className="text-xs text-ink-muted mb-2">
+                      {order.customer} · {order.phone} · {dist} km
+                    </div>
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {order.items.map(item => (
+                        <span key={item.id} className="text-[10px] bg-cream-100 px-2 py-0.5 rounded-full">
+                          {item.name} x{item.qty}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      {order.status === 'out' ? (
+                        <button
+                          onClick={() => handleCompleteDelivery(order.id)}
+                          className="flex-1 bg-emerald-500 text-white text-[11px] font-bold py-2 rounded-xl"
+                        >
+                          Mark Done
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleStartDelivery(order)}
+                          className="flex-1 bg-gold text-white text-[11px] font-bold py-2 rounded-xl"
+                        >
+                          On My Way
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { setSelectedOrder(order); setShowMap(true) }}
+                        className="w-10 h-10 bg-cream-200 rounded-xl flex items-center justify-center"
+                      >
+                        <FiTruck size={14} className="text-ink" />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
-        {/* Orders list */}
-        <div className="bg-white border border-cream-300 rounded-2xl p-4" style={{ boxShadow: '0 1px 4px rgba(26,22,18,0.06)' }}>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-serif text-base font-bold text-ink">Recent Orders</h3>
-            <span className="badge-gold">{orders.length} total</span>
-          </div>
+          {/* Map Modal */}
+          {showMap && selectedOrder && (
+            <div className="fixed inset-0 z-[2000] bg-black flex flex-col">
+              <button
+                onClick={() => setShowMap(false)}
+                className="absolute top-4 left-4 z-[3000] w-10 h-10 bg-white/90 rounded-full flex items-center justify-center"
+              >
+                <FiChevronLeft size={20} />
+              </button>
 
-          <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-            {orders.length === 0 && (
-              <p className="text-sm text-ink-ghost text-center py-6">No orders yet.</p>
-            )}
-            {[...orders].reverse().map(o => (
-              <div key={o.id} className="border-b border-cream-200 pb-3 last:border-0">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-mono text-sm font-bold text-ink">#{o.id}</span>
-                  <span className="font-mono text-sm font-bold text-gold">R{o.total}</span>
-                </div>
-                <div className="text-[11px] text-ink-ghost mb-2">
-                  {o.customer} · {o.phone || 'no phone'} · {o.address}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${statusColors[o.status] || statusColors.received}`}>
-                    {o.status}
-                  </span>
-                </div>
-                <div className="flex gap-1.5 mt-2 flex-wrap">
-                  <StatusButton label="Received" active={o.status === 'received'} onClick={() => handleStatus(o.id, 'received')} />
-                  <StatusButton label="Preparing" active={o.status === 'preparing'} onClick={() => handleStatus(o.id, 'preparing')} />
-                  <StatusButton label="Out for Delivery" active={o.status === 'out'} onClick={() => handleStatus(o.id, 'out')} />
-                </div>
+              <div className="flex-1">
+                <MapContainer
+                  center={[selectedOrder.lat || K_AND_Q_COORDS.lat, selectedOrder.lng || K_AND_Q_COORDS.lng]}
+                  zoom={14}
+                  style={{ height: '100%', width: '100%' }}
+                  zoomControl={false}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <Marker position={[K_AND_Q_COORDS.lat, K_AND_Q_COORDS.lng]} icon={storeIcon} />
+                  {selectedOrder.lat && selectedOrder.lng && (
+                    <Marker position={[selectedOrder.lat, selectedOrder.lng]} icon={customerIcon} />
+                  )}
+                </MapContainer>
               </div>
-            ))}
-          </div>
+
+              {/* Customer info bottom sheet */}
+              <div className="bg-white p-6 rounded-t-[2rem]">
+                <h3 className="font-bold text-ink">{selectedOrder.customer}</h3>
+                <p className="text-ink-muted text-sm">{selectedOrder.phone}</p>
+                <p className="text-ink-muted text-sm">{selectedOrder.address}</p>
+                <div className="flex gap-3 mt-4">
+                  <a href={`tel:${selectedOrder.phone}`} className="flex-1 bg-gold text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                    <FiPhone size={16} /> Call
+                  </a>
+                  <a
+                    href={`https://wa.me/${selectedOrder.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(selectedOrder.customer)}%2C%20Kings%20%26%20Queens%20delivery`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 bg-green-500 text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+                  >
+                    <FaWhatsapp size={16} /> WhatsApp
+                  </a>
+                </div>
+                {selectedOrder.status === 'out' && (
+                  <button
+                    onClick={() => handleCompleteDelivery(selectedOrder.id)}
+                    className="w-full mt-3 bg-emerald-500 text-white py-3 rounded-xl text-sm font-bold"
+                  >
+                    Done — Complete Delivery
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Completed Orders History */}
+          {completedOrders.length > 0 && (
+            <div className="mt-8">
+              <h2 className="font-serif text-lg font-bold text-ink mb-3">Completed ({completedOrders.length})</h2>
+              <div className="space-y-2">
+                {completedOrders.slice(0, 10).map(order => (
+                  <div key={order.id} className="bg-cream-100 rounded-xl p-3 text-xs text-ink-muted flex justify-between">
+                    <span>#{order.id} – {order.customer}</span>
+                    <span>R{order.total}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === 'prices' && <PriceManager />}
+    </div>
+  )
+}
+
+// ── Price Manager Component ──────────────────────────────────
+function PriceManager() {
+  // This will read from ProductsContext
+  const { drinks, foods, updateItem } = useProducts()
+  const [editId, setEditId] = useState(null)
+  const [newPrice, setNewPrice] = useState('')
+
+  const startEdit = (item) => {
+    setEditId(item.id)
+    setNewPrice(item.price)
+  }
+
+  const savePrice = (id, type) => {
+    if (!isNaN(newPrice) && newPrice > 0) {
+      updateItem(id, type, { price: Number(newPrice) })
+      setEditId(null)
+    }
+  }
+
+  return (
+    <div>
+      <h2 className="font-serif text-xl font-bold text-ink mb-4">Adjust Prices</h2>
+
+      <div className="mb-6">
+        <h3 className="text-sm font-bold text-ink mb-2">Drinks</h3>
+        <div className="space-y-2">
+          {drinks.map(d => (
+            <div key={d.id} className="flex items-center bg-white rounded-xl p-3 border border-cream-200">
+              <div className="flex-1 text-xs font-medium">{d.name}</div>
+              {editId === d.id ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={newPrice}
+                    onChange={e => setNewPrice(e.target.value)}
+                    className="w-16 text-xs bg-cream-100 border border-cream-300 rounded px-2 py-1 text-center"
+                  />
+                  <button onClick={() => savePrice(d.id, 'drink')} className="text-[10px] bg-gold text-white px-2 py-1 rounded font-bold">Save</button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-gold">R{d.price}</span>
+                  <button onClick={() => startEdit(d)} className="text-xs text-ink-muted">
+                    <FiEdit3 size={12} />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-bold text-ink mb-2">Food</h3>
+        <div className="space-y-2">
+          {foods.map(f => (
+            <div key={f.id} className="flex items-center bg-white rounded-xl p-3 border border-cream-200">
+              <div className="flex-1 text-xs font-medium">{f.name}</div>
+              {editId === f.id ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={newPrice}
+                    onChange={e => setNewPrice(e.target.value)}
+                    className="w-16 text-xs bg-cream-100 border border-cream-300 rounded px-2 py-1 text-center"
+                  />
+                  <button onClick={() => savePrice(f.id, 'food')} className="text-[10px] bg-gold text-white px-2 py-1 rounded font-bold">Save</button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-gold">R{f.price}</span>
+                  <button onClick={() => startEdit(f)} className="text-xs text-ink-muted">
+                    <FiEdit3 size={12} />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>

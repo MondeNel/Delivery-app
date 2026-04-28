@@ -1,44 +1,37 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react'
 
-const OrderContext = createContext();
+const OrderContext = createContext()
+export const K_AND_Q_COORDS = { lat: -29.6644, lng: 22.7483 }
 
-// Precise coordinates for Oasis St, Prieska, 8940
-export const K_AND_Q_COORDS = { lat: -29.6644, lng: 22.7483 };
-
-export const OrderProvider = ({ children }) => {
-  const [orderStatus, setOrderStatus] = useState(null);
-
-  useEffect(() => {
-    if (orderStatus === 'received') {
-      const timer = setTimeout(() => setOrderStatus('preparing'), 5000);
-      return () => clearTimeout(timer);
-    }
-    if (orderStatus === 'preparing') {
-      const timer = setTimeout(() => setOrderStatus('out'), 10000);
-      return () => clearTimeout(timer);
-    }
-  }, [orderStatus]);
-
-  const updateOrderStatus = (newStatus) => setOrderStatus(newStatus);
+export function OrderProvider({ children }) {
+  const [order, setOrder] = useState(null)
 
   const placeOrder = () => {
-    setOrderStatus('received'); 
-    return {
-      id: `KQ-${Math.floor(1000 + Math.random() * 9000)}`,
+    const newOrder = {
+      id: 'KQ-' + Math.floor(1000 + Math.random() * 9000),
       status: 'received',
-      timestamp: new Date().toISOString(),
-    };
-  };
+      time: Date.now(),
+    }
+    setOrder(newOrder)
+    return newOrder
+  }
+
+  const updateOrderStatus = (status) => {
+    setOrder(prev => prev ? { ...prev, status } : null)
+  }
+
+  // Admin manual override – jump straight to 'out'
+  const markOutForDelivery = () => {
+    setOrder(prev => prev ? { ...prev, status: 'out' } : null)
+  }
 
   return (
-    <OrderContext.Provider value={{ orderStatus, updateOrderStatus, placeOrder }}>
+    <OrderContext.Provider value={{ order, placeOrder, updateOrderStatus, markOutForDelivery }}>
       {children}
     </OrderContext.Provider>
-  );
-};
+  )
+}
 
-export const useOrder = () => {
-  const context = useContext(OrderContext);
-  if (!context) throw new Error('useOrder must be used within OrderProvider');
-  return context;
-};
+export function useOrder() {
+  return useContext(OrderContext)
+}
