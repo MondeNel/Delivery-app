@@ -3,15 +3,24 @@ import { drinks } from '../data/products'
 import CategoryPills from './CategoryPills'
 import ItemCard from './ItemCard'
 
+// Category labels must match the `cat` values in products.js exactly (case-insensitive)
+const CATEGORIES = [
+  { label: 'All',      value: 'all'     },
+  { label: 'Beers',    value: 'beer'    },
+  { label: 'Spirits',  value: 'spirit'  },
+  { label: 'Ciders',   value: 'cider'   },
+  { label: 'Wine',     value: 'wine'    },
+  { label: 'Shooters', value: 'shooter' },
+]
+
 export default function DrinksPanel({ search, onCardClick }) {
-  const [cat, setCat] = useState('All')
-  const categories = ['All', 'Beers', 'Spirits', 'Ciders', 'Wine', 'Shooters']
+  const [activeCat, setActiveCat] = useState('all')
 
   const filtered = useMemo(() => drinks.filter(d => {
-    const matchCat = cat === 'All' || d.cat.toLowerCase() === cat.toLowerCase()
+    const matchCat    = activeCat === 'all' || d.cat.toLowerCase() === activeCat
     const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
-  }), [cat, search])
+  }), [activeCat, search])
 
   return (
     <div className="bg-white rounded-[2rem] p-5 border border-cream-200 shadow-sm">
@@ -25,7 +34,27 @@ export default function DrinksPanel({ search, onCardClick }) {
         </span>
       </div>
 
-      <CategoryPills categories={categories} active={cat} onChange={setCat} />
+      {/* Pills now use { label, value } pairs so display and filter are decoupled */}
+      <div className="overflow-x-auto -mx-1 px-1 mb-4 scrollbar-none">
+        <div className="flex gap-2 min-w-max py-1">
+          {CATEGORIES.map(cat => {
+            const isActive = activeCat === cat.value
+            return (
+              <button
+                key={cat.value}
+                onClick={() => setActiveCat(cat.value)}
+                className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-300 border-2 ${
+                  isActive
+                    ? 'bg-ink text-white border-ink shadow-lg shadow-ink/20 scale-105'
+                    : 'bg-white border-cream-200 text-ink-ghost hover:border-gold/30 hover:text-gold'
+                }`}
+              >
+                {cat.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
       {filtered.length > 0 ? (
         <div className="grid grid-cols-2 xs:grid-cols-3 gap-3 mt-5">

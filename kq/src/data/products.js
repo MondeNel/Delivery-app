@@ -1,5 +1,9 @@
+// ── products.js ───────────────────────────────────────────────
+// Drink images → Makro CDN bottle-on-white shots (clean product style)
+// Food images  → Unsplash food photography (permanent, free, 600px)
+
 export const drinks = [
-  // ── Beers ──────────────────────────────────────────────
+  // ── Beers ──────────────────────────────────────────────────
   {
     id: 'd1',
     name: 'Castle Lager',
@@ -46,7 +50,7 @@ export const drinks = [
     img: 'https://www.makro.co.za/asset/rukmini/fccp/612/612/ng-fkpublic-ui-user-fbbe/beer/y/c/j/-original-imah7zgwgcgzzyaj.jpeg?q=70',
   },
 
-  // ── Ciders ─────────────────────────────────────────────
+  // ── Ciders ─────────────────────────────────────────────────
   {
     id: 'd2',
     name: 'Hunters Gold',
@@ -93,7 +97,7 @@ export const drinks = [
     img: 'https://www.makro.co.za/asset/rukmini/fccp/612/612/ng-fkpublic-ui-user-fbbe/beer/4/v/l/-original-imah2mvqutpfhgbt.jpeg?q=70',
   },
 
-  // ── Spirits ────────────────────────────────────────────
+  // ── Spirits ────────────────────────────────────────────────
   {
     id: 'd3',
     name: 'Jagermeister 1L',
@@ -142,7 +146,7 @@ export const drinks = [
   {
     id: 'd21',
     name: 'Smirnoff Vodka',
-    desc: '750ml · premium Russian vodka',
+    desc: '750ml · premium vodka',
     price: 249,
     cat: 'spirit',
     stock: 'in',
@@ -167,7 +171,7 @@ export const drinks = [
     img: 'https://www.makro.co.za/asset/rukmini/fccp/612/612/ng-fkpublic-ui-user-fbbe/spirit/a/d/i/-original-imah2f4vqv8mkh9v.jpeg?q=70',
   },
 
-  // ── Wines ──────────────────────────────────────────────
+  // ── Wines ──────────────────────────────────────────────────
   {
     id: 'd7',
     name: 'House Wine (Red)',
@@ -205,7 +209,7 @@ export const drinks = [
     img: 'https://www.makro.co.za/asset/rukmini/fccp/612/612/ng-fkpublic-ui-user-fbbe/wine/s/c/t/-original-imah9zpjqdtqphyd.jpeg?q=70',
   },
 
-  // ── Shooters (no image yet) ────────────────────────────
+  // ── Shooters ───────────────────────────────────────────────
   {
     id: 'd8',
     name: 'Strawberry Shooter',
@@ -213,11 +217,12 @@ export const drinks = [
     price: 18,
     cat: 'shooter',
     stock: 'in',
-    img: '',
+    img: 'https://www.makro.co.za/asset/rukmini/fccp/612/612/ng-fkpublic-ui-user-fbbe/spirit/r/y/a/-original-imah2f4xgqxeqvxq.jpeg?q=70',
   },
 ];
 
 export const foods = [
+  // ── Combos ─────────────────────────────────────────────────
   {
     id: 'f1',
     name: 'Wings & Wors Combo',
@@ -225,7 +230,7 @@ export const foods = [
     price: 50,
     cat: 'combo',
     stock: 'in',
-    img: 'https://tb-static.uber.com/prod/image-proc/processed_images/39786ab630d560e39b374e0904fb3a94/f0d1762b91fd823a1aa9bd0dab5c648d.jpeg',
+    img: 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'f2',
@@ -234,8 +239,10 @@ export const foods = [
     price: 60,
     cat: 'combo',
     stock: 'in',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmGnKAEp1ZH2bmJo2EQ2kvT9FrsMBHcIUtig&s',
+    img: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=600&q=80',
   },
+
+  // ── Grills ─────────────────────────────────────────────────
   {
     id: 'f3',
     name: 'Babalas Mix Grill (Atchar)',
@@ -243,7 +250,7 @@ export const foods = [
     price: 120,
     cat: 'grill',
     stock: 'in',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4Xu8F7rDbNgrZJfPVeVMAAejfdr1MQhBDHA&s',
+    img: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'f4',
@@ -252,8 +259,10 @@ export const foods = [
     price: 130,
     cat: 'grill',
     stock: 'in',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWS_Zh-CblXJH5N8X0nl5j56ocIp1bRJYYWQ&s',
+    img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=600&q=80',
   },
+
+  // ── Singles ────────────────────────────────────────────────
   {
     id: 'f5',
     name: 'Pap',
@@ -261,7 +270,7 @@ export const foods = [
     price: 5,
     cat: 'single',
     stock: 'in',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRm81ILLtIdS21u0pkm-7y5mgg8Kjcp3JKwTg&s',
+    img: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'f6',
@@ -270,7 +279,7 @@ export const foods = [
     price: 20,
     cat: 'single',
     stock: 'in',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtJWx5QQpFNvMVA75Ld0cuyfk-xYiK1IsMgQ&s',
+    img: 'https://images.unsplash.com/photo-1623653387945-2fd25214f8fc?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'f7',
@@ -279,7 +288,7 @@ export const foods = [
     price: 25,
     cat: 'single',
     stock: 'in',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsd95nlDECZcpDnePhccVyw9hqsSo6vaqCgA&s',
+    img: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'f8',
@@ -288,8 +297,10 @@ export const foods = [
     price: 40,
     cat: 'single',
     stock: 'low',
-    img: '',   // no image yet – will use placeholder
+    img: 'https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&w=600&q=80',
   },
+
+  // ── Sides ──────────────────────────────────────────────────
   {
     id: 'f9',
     name: 'Atchar',
@@ -297,6 +308,6 @@ export const foods = [
     price: 10,
     cat: 'side',
     stock: 'in',
-    img: '',   // no image yet
+    img: 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?auto=format&fit=crop&w=600&q=80',
   },
 ];

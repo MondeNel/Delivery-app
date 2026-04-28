@@ -289,8 +289,10 @@ export default function TrackingBar() {
           style={{ height: '100%', width: '100%' }}
           zoomControl={false}
         >
-          <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png" />
-          <MapController center={mapCenter} zoom={mapZoom} />
+          <TileLayer
+  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+/>
 
           {/* Store origin */}
           <Marker position={[businessLoc.lat, businessLoc.lng]} icon={storeIcon} />

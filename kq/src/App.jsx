@@ -23,7 +23,6 @@ export default function App() {
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<Admin />} />
-                <Route path="*" element={<h1>404 Not Found</h1>} />
               </Route>
             </Routes>
           </CartProvider>
