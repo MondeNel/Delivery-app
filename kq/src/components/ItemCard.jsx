@@ -1,13 +1,38 @@
+import { useState } from 'react'
 import { useCart } from '../context/CartContext'
-import { FiPlus, FiMinus, FiTrash2 } from 'react-icons/fi'
+import { useAuth } from '../context/AuthContext'
+import { useProducts } from '../context/ProductsContext'
+import { FiPlus, FiMinus, FiTrash2, FiEdit2, FiX } from 'react-icons/fi'
 
 export default function ItemCard({ item, onCardClick }) {
   const { items, dispatch } = useCart()
+  const { isAdmin } = useAuth()
+  const { updateItem, deleteItem } = useProducts()
   const cartItem = items.find(i => i.id === item.id)
   const qty = cartItem?.qty ?? 0
 
+  const [editing, setEditing] = useState(false)
+  const [editPrice, setEditPrice] = useState(item.price)
+
   const isLow = item.stock === 'low'
   const isOut = item.stock === 'out'
+
+  const handleSavePrice = (e) => {
+    e.stopPropagation()
+    if (editPrice && editPrice > 0) {
+      const type = item.cat && ['combo','grill','single','side'].includes(item.cat) ? 'food' : 'drink'
+      updateItem(item.id, type, { price: Number(editPrice) })
+      setEditing(false)
+    }
+  }
+
+  const handleDelete = (e) => {
+    e.stopPropagation()
+    if (confirm(`Permanently delete ${item.name}?`)) {
+      const type = item.cat && ['combo','grill','single','side'].includes(item.cat) ? 'food' : 'drink'
+      deleteItem(item.id, type)
+    }
+  }
 
   return (
     <div
@@ -15,6 +40,24 @@ export default function ItemCard({ item, onCardClick }) {
       className="group relative bg-white border border-cream-200 rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-200 hover:border-gold/40 hover:shadow-lg active:scale-[0.97]"
       style={{ boxShadow: '0 1px 6px rgba(26,22,18,0.07)' }}
     >
+      {/* ── Admin controls ── */}
+      {isAdmin && (
+        <div className="absolute top-2 right-2 z-20 flex gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); setEditing(!editing) }}
+            className="w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full shadow flex items-center justify-center hover:bg-gold hover:text-white transition-colors"
+          >
+            {editing ? <FiX size={12} /> : <FiEdit2 size={12} />}
+          </button>
+          <button
+            onClick={handleDelete}
+            className="w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full shadow flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+          >
+            <FiTrash2 size={12} />
+          </button>
+        </div>
+      )}
+
       {/* ── Image area — clean white bg like a product sheet ── */}
       <div className="relative bg-[#F7F5F2] flex items-center justify-center overflow-hidden"
         style={{ height: '160px' }}
@@ -45,8 +88,8 @@ export default function ItemCard({ item, onCardClick }) {
           </div>
         )}
 
-        {/* Qty indicator — top right */}
-        {qty > 0 && (
+        {/* Qty indicator — top right (hide when admin controls hover) */}
+        {qty > 0 && !isAdmin && (
           <div className="absolute top-2 right-2 animate-in zoom-in duration-200">
             <span className="bg-gold text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">
               {qty}
@@ -67,12 +110,30 @@ export default function ItemCard({ item, onCardClick }) {
           </p>
         </div>
 
-        {/* Price */}
-        <p className="text-base font-black text-ink tracking-tight">
-          R{item.price}<span className="text-[10px] font-bold text-ink-ghost">.00</span>
-        </p>
+        {/* Price – editable when admin */}
+        {isAdmin && editing ? (
+          <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+            <input
+              type="number"
+              value={editPrice}
+              onChange={e => setEditPrice(e.target.value)}
+              className="w-full bg-cream-100 border border-gold rounded-md px-2 py-1 text-sm font-bold text-ink outline-none"
+              autoFocus
+            />
+            <button
+              onClick={handleSavePrice}
+              className="bg-gold text-white text-[10px] font-bold px-3 py-1 rounded-md"
+            >
+              Save
+            </button>
+          </div>
+        ) : (
+          <p className="text-base font-black text-ink tracking-tight">
+            R{item.price}<span className="text-[10px] font-bold text-ink-ghost">.00</span>
+          </p>
+        )}
 
-        {/* Add / Qty controls */}
+        {/* Add / Qty controls – unchanged */}
         <div onClick={e => e.stopPropagation()}>
           {qty === 0 ? (
             <button

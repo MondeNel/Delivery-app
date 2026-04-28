@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import { usePlacedOrders } from '../context/PlacedOrdersContext'
 import { useOrder, K_AND_Q_COORDS } from '../context/OrderContext'
-import { FiTruck, FiPhone, FaWhatsapp, FiChevronLeft, FiEdit3 } from 'react-icons/fi'
+import { FiTruck, FiPhone, FiChevronLeft, FiEdit3 } from 'react-icons/fi'
 import { FaWhatsapp } from 'react-icons/fa'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -16,7 +16,6 @@ function haversineKm(a, b) {
   return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1-h))
 }
 
-// ── Custom marker icons ──
 const storeIcon = L.icon({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
@@ -31,39 +30,37 @@ const customerIcon = L.divIcon({
 export default function Admin() {
   const { orders, completedOrders, updateOrder, completeOrder } = usePlacedOrders()
   const { markOutForDelivery } = useOrder()
-  const [tab, setTab] = useState('orders')  // 'orders' | 'prices'
+  const [tab, setTab] = useState('orders')
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showMap, setShowMap] = useState(false)
 
-  // Filter only active orders (not completed)
-  const activeOrders = useMemo(() => {
-    return orders.filter(o => o.status !== 'completed')
-  }, [orders])
-
-  // Sort by distance from store
+  // Sort active orders by distance
   const sortedOrders = useMemo(() => {
-    return [...activeOrders].sort((a, b) => {
+    return [...orders].sort((a, b) => {
       const distA = a.lat && a.lng ? haversineKm(K_AND_Q_COORDS, { lat: a.lat, lng: a.lng }) : 9999
       const distB = b.lat && b.lng ? haversineKm(K_AND_Q_COORDS, { lat: b.lat, lng: b.lng }) : 9999
       return distA - distB
     })
-  }, [activeOrders])
+  }, [orders])
 
-  // Handlers
   const handleStartDelivery = (order) => {
-    updateOrder(order.id, { status: 'out' })          // mark placed order
-    markOutForDelivery()                                // triggers user's tracking animation
+    updateOrder(order.id, { status: 'out' })
+    markOutForDelivery()
     setSelectedOrder(order)
     setShowMap(true)
   }
 
   const handleCompleteDelivery = (orderId) => {
-    completeOrder(orderId)                              // moves to completed list
-    // if it was the current displayed order, clear map
+    completeOrder(orderId)
     if (selectedOrder?.id === orderId) {
       setSelectedOrder(null)
       setShowMap(false)
     }
+  }
+
+  const openMap = (order) => {
+    setSelectedOrder(order)
+    setShowMap(true)
   }
 
   return (
@@ -129,7 +126,7 @@ export default function Admin() {
                         </button>
                       )}
                       <button
-                        onClick={() => { setSelectedOrder(order); setShowMap(true) }}
+                        onClick={() => openMap(order)}
                         className="w-10 h-10 bg-cream-200 rounded-xl flex items-center justify-center"
                       >
                         <FiTruck size={14} className="text-ink" />
@@ -150,7 +147,6 @@ export default function Admin() {
               >
                 <FiChevronLeft size={20} />
               </button>
-
               <div className="flex-1">
                 <MapContainer
                   center={[selectedOrder.lat || K_AND_Q_COORDS.lat, selectedOrder.lng || K_AND_Q_COORDS.lng]}
@@ -158,15 +154,16 @@ export default function Admin() {
                   style={{ height: '100%', width: '100%' }}
                   zoomControl={false}
                 >
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
                   <Marker position={[K_AND_Q_COORDS.lat, K_AND_Q_COORDS.lng]} icon={storeIcon} />
                   {selectedOrder.lat && selectedOrder.lng && (
                     <Marker position={[selectedOrder.lat, selectedOrder.lng]} icon={customerIcon} />
                   )}
                 </MapContainer>
               </div>
-
-              {/* Customer info bottom sheet */}
               <div className="bg-white p-6 rounded-t-[2rem]">
                 <h3 className="font-bold text-ink">{selectedOrder.customer}</h3>
                 <p className="text-ink-muted text-sm">{selectedOrder.phone}</p>
@@ -218,9 +215,10 @@ export default function Admin() {
   )
 }
 
-// ── Price Manager Component ──────────────────────────────────
+// ── Price Manager (same as before, ensure it uses useProducts) ──
+import { useProducts } from '../context/ProductsContext'
+
 function PriceManager() {
-  // This will read from ProductsContext
   const { drinks, foods, updateItem } = useProducts()
   const [editId, setEditId] = useState(null)
   const [newPrice, setNewPrice] = useState('')
@@ -240,7 +238,6 @@ function PriceManager() {
   return (
     <div>
       <h2 className="font-serif text-xl font-bold text-ink mb-4">Adjust Prices</h2>
-
       <div className="mb-6">
         <h3 className="text-sm font-bold text-ink mb-2">Drinks</h3>
         <div className="space-y-2">
@@ -269,7 +266,6 @@ function PriceManager() {
           ))}
         </div>
       </div>
-
       <div>
         <h3 className="text-sm font-bold text-ink mb-2">Food</h3>
         <div className="space-y-2">

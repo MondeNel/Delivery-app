@@ -9,14 +9,21 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isAdminLogin, setIsAdminLogin] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      login(email, password)
-      navigate('/')
+      const user = login(email, password)
+      if (isAdminLogin && !user.isAdmin) {
+        setError('This account does not have admin privileges.')
+        setLoading(false)
+        return
+      }
+      // Redirect admin to dashboard, others to home
+      navigate(user.isAdmin ? '/admin' : '/')
     } catch (err) {
       setError(err.message)
     }
@@ -29,7 +36,36 @@ export default function Login() {
         <h1 className="font-serif text-2xl font-bold text-ink text-center mb-2">
           Kings & Queens
         </h1>
-        <p className="text-sm text-ink-muted text-center mb-6">Log in to your account</p>
+
+        {/* Customer / Admin toggle */}
+        <div className="flex justify-center gap-4 mb-4">
+          <button
+            onClick={() => setIsAdminLogin(false)}
+            className={`text-xs font-bold uppercase tracking-widest pb-1 border-b-2 transition-all ${
+              !isAdminLogin ? 'border-gold text-gold' : 'border-transparent text-ink-muted'
+            }`}
+          >
+            Customer
+          </button>
+          <button
+            onClick={() => setIsAdminLogin(true)}
+            className={`text-xs font-bold uppercase tracking-widest pb-1 border-b-2 transition-all ${
+              isAdminLogin ? 'border-gold text-gold' : 'border-transparent text-ink-muted'
+            }`}
+          >
+            Admin
+          </button>
+        </div>
+
+        <p className="text-sm text-ink-muted text-center mb-6">
+          {isAdminLogin ? 'Admin Login' : 'Log in to your account'}
+        </p>
+
+        {isAdminLogin && (
+          <div className="bg-gold-light border border-gold-border text-gold-dark text-[11px] p-3 rounded-lg mb-4 text-center font-medium">
+            Demo admin: admin@kq.co.za / admin123
+          </div>
+        )}
 
         {error && (
           <div className="bg-ember-light border border-ember-border text-ember text-xs p-3 rounded-lg mb-4">
@@ -63,16 +99,28 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gold text-white py-3 rounded-lg font-semibold text-sm disabled:opacity-50"
+            className={`w-full py-3 rounded-lg font-semibold text-sm disabled:opacity-50 transition-colors ${
+              isAdminLogin ? 'bg-ink text-white' : 'bg-gold text-white'
+            }`}
           >
-            {loading ? 'Logging in…' : 'Log In'}
+            {loading ? 'Logging in…' : isAdminLogin ? 'Log In as Admin' : 'Log In'}
           </button>
         </form>
 
-        <p className="text-xs text-ink-muted text-center mt-4">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-gold font-medium">Sign up</Link>
-        </p>
+        {!isAdminLogin && (
+          <p className="text-xs text-ink-muted text-center mt-4">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-gold font-medium">Sign up</Link>
+          </p>
+        )}
+        {isAdminLogin && (
+          <p className="text-xs text-ink-muted text-center mt-4">
+            Not an admin?{' '}
+            <button onClick={() => setIsAdminLogin(false)} className="text-gold font-medium">
+              Switch to customer login
+            </button>
+          </p>
+        )}
       </div>
     </div>
   )

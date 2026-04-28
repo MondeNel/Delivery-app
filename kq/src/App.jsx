@@ -11,7 +11,8 @@ import { OrderProvider } from './context/OrderContext'
 import { PlacedOrdersProvider } from './context/PlacedOrdersContext'
 import { ProfileProvider } from './context/ProfileContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import { ProductsProvider } from './context/ProductsContext'    // ← new
+import { ProductsProvider } from './context/ProductsContext'
+import { DealsProvider } from './context/DealsContext'
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth()
@@ -29,7 +30,8 @@ function AdminRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <ProductsProvider>                 {/* ← new */}
+      <ProductsProvider>
+        <DealsProvider>
         <CartProvider>
           <OrderProvider>
             <PlacedOrdersProvider>
@@ -54,6 +56,7 @@ export default function App() {
             </PlacedOrdersProvider>
           </OrderProvider>
         </CartProvider>
+        </DealsProvider>
       </ProductsProvider>
     </AuthProvider>
   )
