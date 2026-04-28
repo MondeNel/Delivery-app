@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext'
 import { useOrder } from '../context/OrderContext'
 import { useProfile } from '../context/ProfileContext'
 import { usePlacedOrders } from '../context/PlacedOrdersContext'
+import { FiMapPin } from 'react-icons/fi'
 
 function LocationMarker({ position, setPosition }) {
   useMapEvents({
@@ -20,16 +21,41 @@ export default function CheckoutModal({ open, onClose }) {
   const { addOrder } = usePlacedOrders()
   const { profile, updateProfile } = useProfile()
 
-  // Pre‑fill from saved profile, fallback to empty
   const [name, setName] = useState(profile.name || '')
   const [phone, setPhone] = useState(profile.phone || '')
   const [address, setAddress] = useState(profile.address || '')
   const [notes, setNotes] = useState('')
   const [position, setPosition] = useState(null)
-  const [saveDetails, setSaveDetails] = useState(!!profile.name) // ticked if profile exists
+  const [saveDetails, setSaveDetails] = useState(!!profile.name)
+  const [locating, setLocating] = useState(false)
+  const [locationError, setLocationError] = useState('')
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation not supported by your browser')
+      return
+    }
+
+    setLocating(true)
+    setLocationError('')
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setPosition({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        })
+        setLocating(false)
+      },
+      (err) => {
+        setLocationError('Location access denied. You can manually tap the map.')
+        setLocating(false)
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    )
+  }
 
   const handlePlaceOrder = () => {
-    // Save to profile if checkbox is ticked
     if (saveDetails && (name || phone || address)) {
       updateProfile({ name, phone, address })
     }
@@ -39,7 +65,7 @@ export default function CheckoutModal({ open, onClose }) {
       id: newOrder.id,
       customer: name || 'Guest',
       phone: phone || '',
-      address: address || '',
+      address: address || 'Shared location',
       notes: notes || '',
       lat: position ? position.lat : null,
       lng: position ? position.lng : null,
@@ -52,9 +78,9 @@ export default function CheckoutModal({ open, onClose }) {
     dispatch({ type: 'CLEAR_CART' })
     onClose()
 
-    // Simulate tracking updates
-    setTimeout(() => updateOrderStatus('preparing'), 3000)
-    setTimeout(() => updateOrderStatus('out'), 7000)
+    // Extended simulation times for realistic feel
+    setTimeout(() => updateOrderStatus('preparing'), 5000)
+    setTimeout(() => updateOrderStatus('out'), 15000)
   }
 
   if (!open) return null
@@ -96,18 +122,25 @@ export default function CheckoutModal({ open, onClose }) {
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide">Street Address</label>
+            <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide">
+              Street Address (optional)
+            </label>
             <input
               type="text" value={address} onChange={e => setAddress(e.target.value)}
-              placeholder="e.g. 12 Market Street, Prieska"
+              placeholder="e.g. 12 Market Street, Prieska (or nearby landmark)"
               className="w-full bg-cream border border-border-light rounded-md p-2.5 text-sm mt-1 outline-none focus:border-gold"
             />
+            <p className="text-[10px] text-text-tertiary mt-1">
+              Not required if you share your location below.
+            </p>
           </div>
+
+          {/* Share Location section */}
           <div>
             <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide mb-1 block">
-              Drop Pin — Prieska, 8940
+              Share Location
             </label>
-            <div className="h-40 md:h-40 bg-cream rounded-md overflow-hidden border border-border-light">
+            <div className="h-40 bg-cream rounded-md overflow-hidden border border-border-light relative">
               <MapContainer center={[-29.677, 22.745]} zoom={13} scrollWheelZoom={false}>
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -115,8 +148,30 @@ export default function CheckoutModal({ open, onClose }) {
                 />
                 <LocationMarker position={position} setPosition={setPosition} />
               </MapContainer>
+              <button
+                type="button"
+                onClick={handleUseMyLocation}
+                disabled={locating}
+                className="absolute bottom-2 right-2 bg-gold text-white text-xs font-medium px-3 py-1.5 rounded-md shadow-md disabled:opacity-60 z-[1000]"
+              >
+                {locating ? (
+                  'Locating...'
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <FiMapPin size={14} />
+                    Use My Location
+                  </span>
+                )}
+              </button>
             </div>
+            {locationError && (
+              <p className="text-[10px] text-red-500 mt-1">{locationError}</p>
+            )}
+            <p className="text-[10px] text-text-tertiary mt-1">
+              Tap the button above or manually drop a pin on the map.
+            </p>
           </div>
+
           <div>
             <label className="text-xs font-medium text-text-tertiary uppercase tracking-wide">Delivery Notes (optional)</label>
             <input
@@ -126,7 +181,6 @@ export default function CheckoutModal({ open, onClose }) {
             />
           </div>
 
-          {/* Save details checkbox */}
           <label className="flex items-center gap-2 text-xs text-text-secondary cursor-pointer">
             <input
               type="checkbox"

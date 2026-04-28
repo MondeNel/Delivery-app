@@ -3,13 +3,13 @@ import { createContext, useContext, useState } from 'react'
 const OrderContext = createContext()
 
 export function OrderProvider({ children }) {
-  const [order, setOrder] = useState(null)  // { id, status, timestamp }
+  const [order, setOrder] = useState(null)
 
   const placeOrder = () => {
     const newOrder = {
       id: 'KQ-' + Math.floor(1000 + Math.random() * 9000),
       status: 'received',
-      time: new Date().toISOString(),
+      time: Date.now(),                // <-- store now
     }
     setOrder(newOrder)
     return newOrder

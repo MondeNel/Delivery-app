@@ -22,10 +22,21 @@ body {
   border-radius: 8px;
 }
 
+/* Pulse animation for cart icon */
 @keyframes pulse-gold {
   0%, 100% { box-shadow: 0 0 0 0 rgba(186, 117, 23, 0.5); }
   50% { box-shadow: 0 0 0 8px rgba(186, 117, 23, 0); }
 }
 .cart-pulse {
   animation: pulse-gold 1.5s infinite;
+}
+
+/* Pulse animation for active tracking step */
+@keyframes pulse-step {
+  0% { box-shadow: 0 0 0 0 rgba(186, 117, 23, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(186, 117, 23, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(186, 117, 23, 0); }
+}
+.pulse-step {
+  animation: pulse-step 1.8s infinite;
 }

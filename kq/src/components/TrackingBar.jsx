@@ -23,13 +23,13 @@ export default function TrackingBar() {
   const elapsed = now - order.time
   const currentStage = order.status
 
-  // Determine expected arrival time (simulated)
+  // Expected arrival time
   const expectedArrival = currentStage === 'out' ? '~10 min' : '~15 min'
 
   // Countdown for the next stage
   const getCountdown = (stageKey) => {
     if (currentStage === stageKey || currentStage === 'out') return null
-    const durations = { received: 3000, preparing: 7000 }
+    const durations = { received: 5000, preparing: 15000 }
     const remaining = durations[currentStage] ? durations[currentStage] - elapsed : 0
     if (remaining <= 0) return null
     const sec = Math.ceil(remaining / 1000)
@@ -70,7 +70,7 @@ export default function TrackingBar() {
                     isCompleted
                       ? 'bg-gold border-gold text-white'
                       : 'bg-white border-border-light text-text-tertiary'
-                  }`}
+                  } ${isCurrent ? 'pulse-step' : ''}`}
                 >
                   {isCompleted ? <Icon size={14} /> : <span className="text-xs">{i + 1}</span>}
                 </div>
