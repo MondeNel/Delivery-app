@@ -7,7 +7,6 @@ export default function Header({ onCartClick }) {
 
   return (
     <header className="bg-white border-b border-border-light sticky top-0 z-40">
-      {/* Top row: logo + icons (always) */}
       <div className="flex items-center justify-between px-3 sm:px-4 py-3 gap-2 sm:gap-4">
         <h1 className="font-serif text-base sm:text-lg text-gold whitespace-nowrap">
           Kings & <span className="text-text-primary">Queens</span>
@@ -22,9 +21,13 @@ export default function Header({ onCartClick }) {
             <FaWhatsapp size={14} />
             <span className="hidden sm:inline">Chat</span>
           </a>
+
+          {/* Cart icon – pulses when items present */}
           <button
             onClick={onCartClick}
-            className="bg-gold text-white w-8 h-8 sm:w-9 sm:h-9 rounded-md flex items-center justify-center relative flex-shrink-0"
+            className={`bg-gold text-white w-8 h-8 sm:w-9 sm:h-9 rounded-md flex items-center justify-center relative flex-shrink-0 ${
+              count > 0 ? 'cart-pulse' : ''
+            }`}
           >
             <FiShoppingCart size={16} className="sm:text-lg" />
             {count > 0 && (
@@ -36,7 +39,7 @@ export default function Header({ onCartClick }) {
         </div>
       </div>
 
-      {/* Search bar – full width on mobile, stays below the top row */}
+      {/* Search bar */}
       <div className="px-3 sm:px-4 pb-3">
         <div className="flex items-center bg-cream rounded-md px-3 py-2 gap-2">
           <FiSearch className="text-text-tertiary flex-shrink-0" size={14} />
