@@ -5,73 +5,147 @@ export default function CartDrawer({ open, onClose, onCheckout }) {
 
   const getThumbnail = (item) => {
     if (item.img) return item.img
-    if (item.cat && ['combo','grill','single','side'].includes(item.cat)) return '/kq-logo.png'
+    if (item.cat && ['combo', 'grill', 'single', 'side'].includes(item.cat))
+      return '/kq-logo.png'
     return null
   }
 
+  const canCheckout = subtotal >= 100
+
   return (
     <>
-      <div className={`fixed inset-0 bg-black/40 z-40 transition-opacity ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={onClose} />
-      <div className={`fixed top-0 right-0 h-full w-[90vw] max-w-sm bg-dark shadow-2xl z-50 transform transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/40 z-40 transition-opacity ${
+          open ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={onClose}
+      />
+
+      {/* Drawer */}
+      <div
+        className={`fixed top-0 right-0 h-full w-[90vw] max-w-sm bg-dark shadow-2xl z-50 transform transition-transform duration-300 ${
+          open ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
         <div className="flex flex-col h-full">
+          {/* Header */}
           <div className="bg-surface px-4 py-3 flex items-center justify-between border-b border-subtle">
             <button onClick={onClose} className="text-text-secondary p-1">
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M19 12H5m7-7-7 7 7 7"/>
+                <path d="M19 12H5m7-7-7 7 7 7" />
               </svg>
             </button>
             <h2 className="font-serif text-lg text-white">Your Order</h2>
             <div className="w-6" />
           </div>
 
+          {/* Items */}
           <div className="flex-1 overflow-y-auto p-4">
             {items.length === 0 ? (
-              <p className="text-sm text-text-tertiary text-center py-8">Your cart is empty</p>
+              <p className="text-sm text-text-tertiary text-center py-8">
+                Your cart is empty
+              </p>
             ) : (
-              items.map(item => {
+              items.map((item) => {
                 const imgSrc = getThumbnail(item)
                 return (
-                  <div key={item.id} className="flex items-center gap-3 bg-surface border border-subtle rounded-lg p-3 mb-2">
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 bg-surface border border-subtle rounded-lg p-3 mb-2"
+                  >
                     <div className="w-10 h-10 rounded-md bg-gray-800 flex-shrink-0 overflow-hidden">
                       {imgSrc ? (
-                        <img src={imgSrc} alt={item.name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                        <img
+                          src={imgSrc}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                          }}
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-text-tertiary">{item.name.charAt(0)}</div>
+                        <div className="w-full h-full flex items-center justify-center text-xs text-text-tertiary">
+                          {item.name.charAt(0)}
+                        </div>
                       )}
                     </div>
-                    <span className="text-sm text-white flex-1">{item.name} <span className="text-text-tertiary text-xs">x{item.qty}</span></span>
+                    <span className="text-sm text-white flex-1">
+                      {item.name}{' '}
+                      <span className="text-text-tertiary text-xs">x{item.qty}</span>
+                    </span>
                     <div className="flex items-center gap-1.5">
-                      <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })}
-                        className="bg-gray-700 border border-subtle w-6 h-6 rounded text-xs">−</button>
-                      <span className="text-xs font-medium text-accent w-4 text-center">{item.qty}</span>
-                      <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })}
-                        className="bg-gray-700 border border-subtle w-6 h-6 rounded text-xs">+</button>
+                      <button
+                        onClick={() =>
+                          dispatch({
+                            type: 'CHANGE_QTY',
+                            payload: { id: item.id, delta: -1 },
+                          })
+                        }
+                        className="bg-gray-700 border border-subtle w-6 h-6 rounded text-xs"
+                      >
+                        −
+                      </button>
+                      <span className="text-xs font-medium text-accent w-4 text-center">
+                        {item.qty}
+                      </span>
+                      <button
+                        onClick={() =>
+                          dispatch({
+                            type: 'CHANGE_QTY',
+                            payload: { id: item.id, delta: 1 },
+                          })
+                        }
+                        className="bg-gray-700 border border-subtle w-6 h-6 rounded text-xs"
+                      >
+                        +
+                      </button>
                     </div>
-                    <span className="text-sm font-medium text-accent ml-2">R{item.price * item.qty}</span>
+                    <span className="text-sm font-medium text-accent ml-2">
+                      R{item.price * item.qty}
+                    </span>
                   </div>
                 )
               })
             )}
           </div>
 
+          {/* Footer */}
           <div className="bg-surface m-3 rounded-lg p-4 border border-subtle">
             <div className="bg-accent-light border border-accent-border rounded-md p-2 text-center text-xs text-warm-dark mb-3">
               Minimum order R100 · Delivery fee R20
             </div>
             <div className="flex justify-between text-sm text-text-secondary mb-1">
-              <span>Subtotal</span><span>R{subtotal}</span>
+              <span>Subtotal</span>
+              <span>R{subtotal}</span>
             </div>
-            <div className="flex justify-between text-sm text-text-secondary mb-1">
-              <span>Delivery</span><span>R20</span>
+            <div className="flex justify-between text-sm text-text-secondary mb-3">
+              <span>Delivery</span>
+              <span>R20</span>
             </div>
-            <div className="flex justify-between text-base font-medium text-white border-t border-subtle pt-2 mt-2">
-              <span>Total</span><span className="text-accent">R{subtotal + 20}</span>
+            <div className="flex justify-between text-base font-medium text-white border-t border-subtle pt-3">
+              <span>Total</span>
+              <span className="text-accent">R{subtotal + 20}</span>
             </div>
-            <button onClick={onCheckout} disabled={subtotal < 100}
-              className="w-full bg-accent text-white py-3 rounded-lg mt-3 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-              Proceed to Checkout
+
+            {/* Checkout button – always visible */}
+            <button
+              onClick={onCheckout}
+              disabled={!canCheckout}
+              className={`w-full mt-4 py-3.5 rounded-lg font-semibold text-sm transition-all ${
+                canCheckout
+                  ? 'bg-accent text-white hover:opacity-90'
+                  : 'bg-gray-700 text-text-tertiary cursor-not-allowed border border-subtle'
+              }`}
+            >
+              {canCheckout
+                ? 'Proceed to Checkout'
+                : `Add R${100 - subtotal} more to checkout`}
             </button>
-            <p className="text-center text-xs text-text-tertiary mt-2">Pay on delivery · Cash accepted</p>
+
+            <p className="text-center text-xs text-text-tertiary mt-2">
+              Pay on delivery · Cash accepted
+            </p>
           </div>
         </div>
       </div>
