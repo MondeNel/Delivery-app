@@ -9,7 +9,7 @@ export function OrderProvider({ children }) {
     const newOrder = {
       id: 'KQ-' + Math.floor(1000 + Math.random() * 9000),
       status: 'received',
-      time: Date.now(),                // <-- store now
+      time: Date.now(),
     }
     setOrder(newOrder)
     return newOrder
@@ -27,5 +27,7 @@ export function OrderProvider({ children }) {
 }
 
 export function useOrder() {
-  return useContext(OrderContext)
+  const ctx = useContext(OrderContext)
+  if (!ctx) throw new Error('useOrder must be used inside OrderProvider')
+  return ctx
 }

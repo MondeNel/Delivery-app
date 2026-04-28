@@ -35,10 +35,8 @@ export default function CheckoutModal({ open, onClose }) {
       setLocationError('Geolocation not supported by your browser')
       return
     }
-
     setLocating(true)
     setLocationError('')
-
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setPosition({
@@ -194,7 +192,7 @@ export default function CheckoutModal({ open, onClose }) {
         <div className="p-4 border-t border-subtle flex-shrink-0">
           <button
             onClick={handlePlaceOrder}
-            className="w-full bg-accent text-white py-3.5 rounded-lg font-medium mt-0"
+            className="w-full bg-accent text-white py-3.5 rounded-lg font-medium"
           >
             Place Order — Pay on Delivery
           </button>

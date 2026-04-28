@@ -14,12 +14,10 @@ export default function DrinksPanel({ search, onCardClick }) {
   }), [cat, search])
 
   return (
-    <div className="bg-surface border border-subtle rounded-xl p-4">
-      <div className="flex items-baseline justify-between mb-3 pb-3 border-b border-subtle">
-        <h2 className="font-serif text-base font-bold text-white">Drinks</h2>
-        <span className="text-[10px] text-text-tertiary uppercase tracking-widest">
-          {filtered.length} items
-        </span>
+    <div className="bg-white rounded-2xl p-4 border border-cream-300 card-lift">
+      <div className="flex items-baseline justify-between mb-3 pb-3 border-b border-cream-200">
+        <h2 className="font-serif text-base font-bold text-ink">Drinks</h2>
+        <span className="text-[10px] text-ink-ghost uppercase tracking-widest">{filtered.length} items</span>
       </div>
       <CategoryPills categories={categories} active={cat} onChange={setCat} />
       {filtered.length > 0 ? (
@@ -30,7 +28,7 @@ export default function DrinksPanel({ search, onCardClick }) {
         </div>
       ) : (
         <div className="py-8 text-center">
-          <p className="text-sm text-text-tertiary">No items found</p>
+          <p className="text-sm text-ink-ghost">No items found</p>
         </div>
       )}
     </div>

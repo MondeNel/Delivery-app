@@ -21,11 +21,9 @@ function cartReducer(state, action) {
     case 'CHANGE_QTY':
       return {
         ...state,
-        items: state.items.map(i =>
-          i.id === action.payload.id
-            ? { ...i, qty: i.qty + action.payload.delta }
-            : i
-        ).filter(i => i.qty > 0)
+        items: state.items
+          .map(i => i.id === action.payload.id ? { ...i, qty: i.qty + action.payload.delta } : i)
+          .filter(i => i.qty > 0)
       }
     case 'CLEAR_CART':
       return { ...state, items: [] }
@@ -34,17 +32,20 @@ function cartReducer(state, action) {
   }
 }
 
-const initialCart = JSON.parse(localStorage.getItem('kq-cart')) || { items: [] }
+const getInitial = () => {
+  try { return JSON.parse(localStorage.getItem('kq-cart')) || { items: [] } }
+  catch { return { items: [] } }
+}
 
 export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(cartReducer, initialCart)
+  const [state, dispatch] = useReducer(cartReducer, getInitial())
 
   useEffect(() => {
     localStorage.setItem('kq-cart', JSON.stringify(state))
   }, [state])
 
   const subtotal = state.items.reduce((sum, i) => sum + i.price * i.qty, 0)
-  const count = state.items.reduce((sum, i) => sum + i.qty, 0)
+  const count    = state.items.reduce((sum, i) => sum + i.qty, 0)
 
   return (
     <CartContext.Provider value={{ items: state.items, dispatch, subtotal, count }}>
@@ -54,5 +55,7 @@ export function CartProvider({ children }) {
 }
 
 export function useCart() {
-  return useContext(CartContext)
+  const ctx = useContext(CartContext)
+  if (!ctx) throw new Error('useCart must be used inside CartProvider')
+  return ctx
 }

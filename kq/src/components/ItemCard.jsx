@@ -6,20 +6,16 @@ export default function ItemCard({ item, onCardClick }) {
   const qty = cartItem?.qty ?? 0
 
   const stockClass = item.stock === 'in'
-    ? 'bg-green-light text-green-text border-green-border'
-    : 'bg-accent-light text-warm-dark border-accent-border'
-
-  const add = () => dispatch({ type: 'ADD_ITEM', payload: item })
-  const inc = () => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })
-  const dec = () => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })
+    ? 'bg-sage-light text-sage-text border-sage-border'
+    : 'bg-gold-light text-gold-dark border-gold-border'
 
   return (
     <div
-      className="bg-surface border border-subtle rounded-xl overflow-hidden w-[152px] min-w-[152px] flex-shrink-0 flex flex-col cursor-pointer hover:border-accent-border transition-colors"
+      className="bg-white border border-cream-300 rounded-2xl overflow-hidden w-[152px] min-w-[152px] flex-shrink-0 flex flex-col cursor-pointer hover:border-gold-border transition-colors card-lift"
       onClick={() => onCardClick?.(item)}
     >
-      {/* Image area */}
-      <div className="relative h-[96px] bg-gray-800 overflow-hidden">
+      {/* Image / price placeholder */}
+      <div className="relative h-[96px] bg-cream-200 overflow-hidden">
         {item.img ? (
           <img
             src={item.img}
@@ -30,53 +26,49 @@ export default function ItemCard({ item, onCardClick }) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="font-serif text-3xl font-bold text-accent opacity-20 select-none">
+            <span className="font-serif text-3xl font-bold text-gold opacity-20 select-none">
               R{item.price}
             </span>
           </div>
         )}
-
-        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-
-        {/* Stock badge */}
         <div className="absolute top-2 left-2">
           <span className={`inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full border ${stockClass}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${item.stock === 'in' ? 'bg-green-text' : 'bg-accent'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${item.stock === 'in' ? 'bg-sage' : 'bg-gold'}`} />
             {item.stock === 'in' ? 'In stock' : 'Few left'}
           </span>
         </div>
       </div>
 
-      {/* Content */}
+      {/* Info */}
       <div className="p-2.5 flex flex-col flex-1 gap-2">
         <div>
-          <p className="text-xs font-semibold text-white leading-tight truncate">{item.name}</p>
-          <p className="text-[10px] text-text-tertiary leading-snug mt-0.5 line-clamp-2">{item.desc}</p>
+          <p className="text-xs font-semibold text-ink leading-tight truncate">{item.name}</p>
+          <p className="text-[10px] text-ink-muted leading-snug mt-0.5 line-clamp-2">{item.desc}</p>
         </div>
-
         <div className="flex items-center justify-between mt-auto">
-          <span className="text-sm font-bold text-accent" style={{ fontFamily: 'DM Mono, monospace' }}>
+          <span className="text-sm font-bold text-gold" style={{ fontFamily: 'DM Mono, monospace' }}>
             R{item.price}
           </span>
 
-          {/* Prevent card click when interacting with buttons */}
           <div onClick={e => e.stopPropagation()}>
             {qty === 0 ? (
               <button
-                onClick={add}
-                className="bg-accent text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+                onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
+                className="bg-gold text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg hover:bg-gold-dark transition-colors btn-press"
               >
                 Add
               </button>
             ) : (
-              <div className="flex items-center gap-2">
-                <button onClick={dec}
-                  className="w-7 h-7 rounded-lg bg-gray-700 border border-subtle text-text-secondary flex items-center justify-center text-sm font-medium hover:bg-gray-600 transition-colors"
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })}
+                  className="w-7 h-7 rounded-lg bg-cream-200 border border-cream-300 text-ink-light flex items-center justify-center text-sm font-medium hover:bg-cream-300 transition-colors btn-press"
                 >−</button>
-                <span className="text-sm font-semibold text-accent w-4 text-center">{qty}</span>
-                <button onClick={inc}
-                  className="w-7 h-7 rounded-lg bg-accent text-white flex items-center justify-center text-sm font-medium hover:opacity-90 transition-opacity"
+                <span className="text-sm font-semibold text-gold w-4 text-center">{qty}</span>
+                <button
+                  onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })}
+                  className="w-7 h-7 rounded-lg bg-gold text-white flex items-center justify-center text-sm font-medium hover:bg-gold-dark transition-colors btn-press"
                 >+</button>
               </div>
             )}

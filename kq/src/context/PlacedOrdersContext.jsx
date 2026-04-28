@@ -2,7 +2,10 @@ import { createContext, useContext, useReducer, useEffect } from 'react'
 
 const PlacedOrdersContext = createContext()
 
-const initialOrders = JSON.parse(localStorage.getItem('kq-placed-orders')) || []
+const getInitial = () => {
+  try { return JSON.parse(localStorage.getItem('kq-placed-orders')) || [] }
+  catch { return [] }
+}
 
 function ordersReducer(state, action) {
   switch (action.type) {
@@ -20,19 +23,16 @@ function ordersReducer(state, action) {
 }
 
 export function PlacedOrdersProvider({ children }) {
-  const [orders, dispatch] = useReducer(ordersReducer, initialOrders)
+  const [orders, dispatch] = useReducer(ordersReducer, getInitial())
 
   useEffect(() => {
     localStorage.setItem('kq-placed-orders', JSON.stringify(orders))
   }, [orders])
 
-  const addOrder = (order) => {
-    dispatch({ type: 'ADD_ORDER', payload: order })
-  }
+  const addOrder = (order) => dispatch({ type: 'ADD_ORDER', payload: order })
 
-  const updateOrderStatus = (id, status) => {
+  const updateOrderStatus = (id, status) =>
     dispatch({ type: 'UPDATE_STATUS', payload: { id, status } })
-  }
 
   return (
     <PlacedOrdersContext.Provider value={{ orders, addOrder, updateOrderStatus }}>
@@ -42,5 +42,7 @@ export function PlacedOrdersProvider({ children }) {
 }
 
 export function usePlacedOrders() {
-  return useContext(PlacedOrdersContext)
+  const ctx = useContext(PlacedOrdersContext)
+  if (!ctx) throw new Error('usePlacedOrders must be used inside PlacedOrdersProvider')
+  return ctx
 }

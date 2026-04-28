@@ -9,18 +9,29 @@ import { useState } from 'react'
 export default function Layout() {
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   return (
-    <div className="min-h-screen bg-dark font-sans text-white">
-      <Header onCartClick={() => setCartOpen(true)} />
+    <div className="min-h-screen bg-cream font-sans text-ink">
+      <Header
+        onCartClick={() => setCartOpen(true)}
+        searchQuery={searchQuery}
+        onSearch={setSearchQuery}
+      />
       <TrackingBar />
-      <main className="pb-20">
-        <Outlet />
+      <main className="pb-24">
+        <Outlet context={{ searchQuery }} />
       </main>
       <BottomNav />
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)}
-        onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }} />
-      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
+      <CartDrawer
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        onCheckout={() => { setCartOpen(false); setCheckoutOpen(true) }}
+      />
+      <CheckoutModal
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+      />
     </div>
   )
 }

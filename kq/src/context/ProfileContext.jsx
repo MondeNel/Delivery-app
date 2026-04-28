@@ -2,28 +2,24 @@ import { createContext, useContext, useState, useEffect } from 'react'
 
 const ProfileContext = createContext()
 
-const defaultProfile = {
-  name: '',
-  phone: '',
-  address: '',
+const DEFAULT = { name: '', phone: '', address: '' }
+
+const getInitial = () => {
+  try { return JSON.parse(localStorage.getItem('kq-profile')) || DEFAULT }
+  catch { return DEFAULT }
 }
 
 export function ProfileProvider({ children }) {
-  const [profile, setProfile] = useState(() => {
-    const saved = localStorage.getItem('kq-profile')
-    return saved ? JSON.parse(saved) : defaultProfile
-  })
+  const [profile, setProfile] = useState(getInitial)
 
   useEffect(() => {
     localStorage.setItem('kq-profile', JSON.stringify(profile))
   }, [profile])
 
-  const updateProfile = (updates) => {
-    setProfile(prev => ({ ...prev, ...updates }))
-  }
+  const updateProfile = (updates) => setProfile(prev => ({ ...prev, ...updates }))
 
   const clearProfile = () => {
-    setProfile(defaultProfile)
+    setProfile(DEFAULT)
     localStorage.removeItem('kq-profile')
   }
 
@@ -35,5 +31,7 @@ export function ProfileProvider({ children }) {
 }
 
 export function useProfile() {
-  return useContext(ProfileContext)
+  const ctx = useContext(ProfileContext)
+  if (!ctx) throw new Error('useProfile must be used inside ProfileProvider')
+  return ctx
 }
