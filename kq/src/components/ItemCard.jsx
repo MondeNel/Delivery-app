@@ -14,30 +14,33 @@ export default function ItemCard({ item, onCardClick }) {
       className="bg-white border border-cream-200 rounded-[1.5rem] overflow-hidden flex flex-col cursor-pointer transition-all hover:border-gold/50 active:scale-[0.98] shadow-sm"
       onClick={() => onCardClick?.(item)}
     >
-      {/* Image Area */}
-      <div className="relative h-24 xs:h-28 bg-cream-100 overflow-hidden">
-        {item.img ? (
-          <img
-            src={item.img}
-            alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            style={{ objectPosition: 'center' }}
-            onError={e => { e.target.style.display = 'none' }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cream-100 to-cream-200">
-             <span className="text-[10px] font-black text-gold/40 uppercase tracking-widest">K & Q</span>
-          </div>
-        )}
-        
-        {/* Stock Badge */}
-        <div className="absolute top-2 left-2">
-          <span className={`flex items-center gap-1 text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border ${stockClass}`}>
-            <span className={`w-1 h-1 rounded-full ${item.stock === 'in' ? 'bg-[#075E54]' : 'bg-[#663C00] animate-pulse'}`} />
-            {item.stock === 'in' ? 'Ready' : 'Low'}
-          </span>
-        </div>
-      </div>
+    {/* Image Area – full product shown, no crop */}
+<div className="relative h-28 bg-white overflow-hidden w-full flex items-center justify-center p-2">
+  {item.img ? (
+    <img
+      src={item.img}
+      alt={item.name}
+      className="max-h-full max-w-full object-contain"
+      loading="lazy"
+      onError={e => {
+        e.target.style.display = 'none'
+        e.target.nextElementSibling?.classList.remove('hidden')
+      }}
+    />
+  ) : null}
+  {/* Fallback */}
+  <div className={`w-full h-full flex items-center justify-center bg-cream-50 ${item.img ? 'hidden' : ''}`}>
+    <span className="text-[10px] font-black text-gold/40 uppercase tracking-widest">K & Q</span>
+  </div>
+
+  {/* Stock Badge */}
+  <div className="absolute top-2 left-2">
+    <span className={`flex items-center gap-1 text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border ${stockClass}`}>
+      <span className={`w-1 h-1 rounded-full ${item.stock === 'in' ? 'bg-[#075E54]' : 'bg-[#663C00] animate-pulse'}`} />
+      {item.stock === 'in' ? 'Ready' : 'Low'}
+    </span>
+  </div>
+</div>
 
       {/* Info Area */}
       <div className="p-3 flex flex-col flex-1">
