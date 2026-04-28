@@ -7,49 +7,45 @@ export default function Header({ onCartClick }) {
 
   return (
     <header className="bg-white border-b border-border-light sticky top-0 z-40">
-      <div className="flex items-center justify-between px-4 py-3 gap-4">
-        {/* Logo */}
-        <h1 className="font-serif text-lg text-gold whitespace-nowrap">
+      {/* Top row: logo + icons (always) */}
+      <div className="flex items-center justify-between px-3 sm:px-4 py-3 gap-2 sm:gap-4">
+        <h1 className="font-serif text-base sm:text-lg text-gold whitespace-nowrap">
           Kings & <span className="text-text-primary">Queens</span>
         </h1>
 
-        {/* Search bar – middle */}
-        <div className="flex-1 max-w-md mx-auto">
-          <div className="flex items-center bg-cream rounded-md px-3 py-2 gap-2">
-            <FiSearch className="text-text-tertiary" size={14} />
-            <input
-              type="text"
-              placeholder="Search drinks, food..."
-              className="bg-transparent border-none outline-none text-sm w-full text-text-primary placeholder-text-tertiary"
-              onChange={(e) => window.dispatchEvent(new CustomEvent('search', { detail: e.target.value }))}
-            />
-          </div>
-        </div>
-
-        {/* Right actions */}
-        <div className="flex items-center gap-2">
-          {/* WhatsApp */}
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           <a
             href="https://wa.me/27680895953?text=Hi+Kings+%26+Queens"
             target="_blank" rel="noreferrer"
-            className="flex items-center gap-1.5 bg-green-light border border-green-border text-green-text px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
+            className="flex items-center gap-1 bg-green-light border border-green-border text-green-text px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
           >
             <FaWhatsapp size={14} />
-            Chat
+            <span className="hidden sm:inline">Chat</span>
           </a>
-
-          {/* Cart with badge */}
           <button
             onClick={onCartClick}
-            className="bg-gold text-white w-9 h-9 rounded-md flex items-center justify-center relative"
+            className="bg-gold text-white w-8 h-8 sm:w-9 sm:h-9 rounded-md flex items-center justify-center relative flex-shrink-0"
           >
-            <FiShoppingCart size={18} />
+            <FiShoppingCart size={16} className="sm:text-lg" />
             {count > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
                 {count}
               </span>
             )}
           </button>
+        </div>
+      </div>
+
+      {/* Search bar – full width on mobile, stays below the top row */}
+      <div className="px-3 sm:px-4 pb-3">
+        <div className="flex items-center bg-cream rounded-md px-3 py-2 gap-2">
+          <FiSearch className="text-text-tertiary flex-shrink-0" size={14} />
+          <input
+            type="text"
+            placeholder="Search drinks, food..."
+            className="bg-transparent border-none outline-none text-sm w-full text-text-primary placeholder-text-tertiary"
+            onChange={(e) => window.dispatchEvent(new CustomEvent('search', { detail: e.target.value }))}
+          />
         </div>
       </div>
     </header>

@@ -27,8 +27,8 @@ export default function Home() {
       {/* Deals horizontal scroll */}
       <DealsStrip />
 
-      {/* Content grid – single column on phones, two columns on tablets+ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 mt-2 pb-4">
+      {/* Two‑column grid for drinks & food */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 mt-3 pb-4">
         <DrinksPanel search={searchQuery} />
         <FoodPanel search={searchQuery} />
       </div>
