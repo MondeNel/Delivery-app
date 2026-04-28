@@ -19,9 +19,9 @@ export default function DrinksPanel({ search }) {
     <div className="bg-white rounded-lg p-3 border border-border-light">
       <h2 className="font-serif text-base text-text-primary mb-2 pb-2 border-b border-border-light">Drinks</h2>
       <CategoryPills categories={categories} active={cat} onChange={setCat} />
-      <div className="space-y-2">
-        {filtered.map(d => <ItemCard key={d.id} item={d} type="drink" />)}
-        {filtered.length === 0 && <p className="text-xs text-text-tertiary text-center py-4">No items found</p>}
+      <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+        {filtered.map(d => <ItemCard key={d.id} item={d} />)}
+        {filtered.length === 0 && <p className="text-xs text-text-tertiary w-full text-center py-4">No items found</p>}
       </div>
     </div>
   )
