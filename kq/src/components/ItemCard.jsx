@@ -5,13 +5,16 @@ export default function ItemCard({ item, type = 'drink' }) {
   const cartItem = items.find(i => i.id === item.id)
   const qty = cartItem ? cartItem.qty : 0
 
-  const stockClass = item.stock === 'in' ? 'bg-green-light text-green-text border-green-border' : 'bg-gold-light text-warm-dark border-gold-border'
+  const stockClass = item.stock === 'in'
+    ? 'bg-green-light text-green-text border-green-border'
+    : 'bg-gold-light text-warm-dark border-gold-border'
 
   const renderImage = () => {
     if (type === 'food') {
       return (
         <div className="h-24 bg-cream overflow-hidden relative">
-          <img src="/kq-placeholder.png" alt="" className="w-full h-full object-cover object-center"
+          <img src="/kq-logo.png" alt="Kings & Queens"
+            className="w-full h-full object-cover object-center"
             onError={(e) => { e.target.style.display = 'none'; }} />
           <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-xs">
             Kings & Queens

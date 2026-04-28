@@ -4,17 +4,20 @@ import Home from './pages/Home'
 import Admin from './pages/Admin'
 import { CartProvider } from './context/CartContext'
 import { OrderProvider } from './context/OrderContext'
+import { PlacedOrdersProvider } from './context/PlacedOrdersContext'
 
 export default function App() {
   return (
     <CartProvider>
       <OrderProvider>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/admin" element={<Admin />} />
-          </Route>
-        </Routes>
+        <PlacedOrdersProvider>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/admin" element={<Admin />} />
+            </Route>
+          </Routes>
+        </PlacedOrdersProvider>
       </OrderProvider>
     </CartProvider>
   )
