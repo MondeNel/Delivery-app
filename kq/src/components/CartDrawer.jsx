@@ -3,10 +3,17 @@ import { useCart } from '../context/CartContext'
 export default function CartDrawer({ open, onClose, onCheckout }) {
   const { items, dispatch, subtotal, count } = useCart()
 
+  const getThumbnail = (item) => {
+    if (item.img) return item.img
+    // food items share the logo placeholder
+    if (item.cat && ['combo','grill','single','side'].includes(item.cat)) return '/kq-logo.png'
+    return null
+  }
+
   return (
     <>
       <div className={`fixed inset-0 bg-black/40 z-40 transition-opacity ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={onClose} />
-      <div className={`fixed top-0 right-0 h-full w-80 bg-cream shadow-2xl z-50 transform transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 h-full w-[90vw] max-w-sm bg-cream shadow-2xl z-50 transform transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-border-light">
             <button onClick={onClose} className="text-text-secondary p-1">
@@ -22,19 +29,29 @@ export default function CartDrawer({ open, onClose, onCheckout }) {
             {items.length === 0 ? (
               <p className="text-sm text-text-tertiary text-center py-8">Your cart is empty</p>
             ) : (
-              items.map(item => (
-                <div key={item.id} className="flex items-center gap-2 bg-white border border-border-light rounded-lg p-3 mb-2">
-                  <span className="text-sm text-text-primary flex-1">{item.name} <span className="text-text-tertiary text-xs">x{item.qty}</span></span>
-                  <div className="flex items-center gap-1.5">
-                    <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })}
-                      className="bg-cream border border-border-light w-5 h-5 rounded text-xs">−</button>
-                    <span className="text-xs font-medium text-gold">{item.qty}</span>
-                    <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })}
-                      className="bg-cream border border-border-light w-5 h-5 rounded text-xs">+</button>
+              items.map(item => {
+                const imgSrc = getThumbnail(item)
+                return (
+                  <div key={item.id} className="flex items-center gap-3 bg-white border border-border-light rounded-lg p-3 mb-2">
+                    <div className="w-10 h-10 rounded-md bg-cream flex-shrink-0 overflow-hidden">
+                      {imgSrc ? (
+                        <img src={imgSrc} alt={item.name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-text-tertiary">{item.name.charAt(0)}</div>
+                      )}
+                    </div>
+                    <span className="text-sm text-text-primary flex-1">{item.name} <span className="text-text-tertiary text-xs">x{item.qty}</span></span>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })}
+                        className="bg-cream border border-border-light w-6 h-6 rounded text-xs">−</button>
+                      <span className="text-xs font-medium text-gold w-4 text-center">{item.qty}</span>
+                      <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })}
+                        className="bg-cream border border-border-light w-6 h-6 rounded text-xs">+</button>
+                    </div>
+                    <span className="text-sm font-medium text-gold ml-2">R{item.price * item.qty}</span>
                   </div>
-                  <span className="text-sm font-medium text-gold ml-2">R{item.price * item.qty}</span>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
 
