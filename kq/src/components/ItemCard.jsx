@@ -49,17 +49,27 @@ export default function ItemCard({ item, type = 'drink' }) {
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-gold">R{item.price}</span>
           {qty === 0 ? (
-            <button onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
-              className="bg-gold text-white text-xs px-2.5 py-1 rounded-md">
+            <button
+              onClick={() => dispatch({ type: 'ADD_ITEM', payload: item })}
+              className="bg-gold text-white text-xs font-medium px-3 py-1.5 rounded-md min-h-[32px] min-w-[48px]"
+            >
               Add
             </button>
           ) : (
             <div className="flex items-center gap-1.5">
-              <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })}
-                className="bg-cream border border-border-light w-5 h-5 rounded flex items-center justify-center text-sm">−</button>
-              <span className="text-xs font-medium text-gold">{qty}</span>
-              <button onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })}
-                className="bg-cream border border-border-light w-5 h-5 rounded flex items-center justify-center text-sm">+</button>
+              <button
+                onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: -1 } })}
+                className="bg-cream border border-border-light w-7 h-7 rounded flex items-center justify-center text-sm"
+              >
+                −
+              </button>
+              <span className="text-sm font-medium text-gold w-5 text-center">{qty}</span>
+              <button
+                onClick={() => dispatch({ type: 'CHANGE_QTY', payload: { id: item.id, delta: 1 } })}
+                className="bg-cream border border-border-light w-7 h-7 rounded flex items-center justify-center text-sm"
+              >
+                +
+              </button>
             </div>
           )}
         </div>
