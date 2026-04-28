@@ -11,6 +11,7 @@ import { OrderProvider } from './context/OrderContext'
 import { PlacedOrdersProvider } from './context/PlacedOrdersContext'
 import { ProfileProvider } from './context/ProfileContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ProductsProvider } from './context/ProductsContext'    // ← new
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth()
@@ -28,30 +29,32 @@ function AdminRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <OrderProvider>
-          <PlacedOrdersProvider>
-            <ProfileProvider>
-              <Routes>
-                <Route element={<Layout />}>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/orders" element={
-                    <ProtectedRoute><Orders /></ProtectedRoute>
-                  } />
-                  <Route path="/profile" element={
-                    <ProtectedRoute><Profile /></ProtectedRoute>
-                  } />
-                  <Route path="/admin" element={
-                    <AdminRoute><Admin /></AdminRoute>
-                  } />
-                </Route>
-              </Routes>
-            </ProfileProvider>
-          </PlacedOrdersProvider>
-        </OrderProvider>
-      </CartProvider>
+      <ProductsProvider>                 {/* ← new */}
+        <CartProvider>
+          <OrderProvider>
+            <PlacedOrdersProvider>
+              <ProfileProvider>
+                <Routes>
+                  <Route element={<Layout />}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/orders" element={
+                      <ProtectedRoute><Orders /></ProtectedRoute>
+                    } />
+                    <Route path="/profile" element={
+                      <ProtectedRoute><Profile /></ProtectedRoute>
+                    } />
+                    <Route path="/admin" element={
+                      <AdminRoute><Admin /></AdminRoute>
+                    } />
+                  </Route>
+                </Routes>
+              </ProfileProvider>
+            </PlacedOrdersProvider>
+          </OrderProvider>
+        </CartProvider>
+      </ProductsProvider>
     </AuthProvider>
   )
 }

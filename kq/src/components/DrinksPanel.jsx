@@ -1,10 +1,8 @@
 import { useState, useMemo } from 'react'
-import { drinks } from '../data/products'
 import CategoryPills from './CategoryPills'
 import ItemCard from './ItemCard'
 import { useProducts } from '../context/ProductsContext'
 
-// Category labels must match the `cat` values in products.js exactly (case-insensitive)
 const CATEGORIES = [
   { label: 'All',      value: 'all'     },
   { label: 'Beers',    value: 'beer'    },
@@ -16,13 +14,13 @@ const CATEGORIES = [
 
 export default function DrinksPanel({ search, onCardClick }) {
   const [activeCat, setActiveCat] = useState('all')
+  const { drinks } = useProducts()          // now works
 
-  const { drinks } = useProducts()
   const filtered = useMemo(() => drinks.filter(d => {
     const matchCat    = activeCat === 'all' || d.cat.toLowerCase() === activeCat
     const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
-  }), [activeCat, search])
+  }), [activeCat, search, drinks])
 
   return (
     <div className="bg-white rounded-[2rem] p-5 border border-cream-200 shadow-sm">
@@ -36,7 +34,6 @@ export default function DrinksPanel({ search, onCardClick }) {
         </span>
       </div>
 
-      {/* Pills now use { label, value } pairs so display and filter are decoupled */}
       <div className="overflow-x-auto -mx-1 px-1 mb-4 scrollbar-none">
         <div className="flex gap-2 min-w-max py-1">
           {CATEGORIES.map(cat => {
